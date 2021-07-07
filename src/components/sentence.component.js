@@ -1,20 +1,20 @@
 import React from "react"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import Record from "./record.component"
 const Sentence = () => {
 	let url = "https://audio-previews.elements.envatousercontent.com/files/142778859/preview.mp3"
 	const audio = new Audio(url)
-	const [playing, setPlaying] = useState(false)
+	// const [playing, setPlaying] = useState(false)
 	useEffect(() => {}, [])
-	const handlePlay = () => {
-		setPlaying(!playing)
-		// playing ? audio.pause() : audio.play()
-		if (playing) {
-			audio.pause()
-		} else {
-			audio.play()
-		}
-	}
+	// const handlePlay = () => {
+	// 	setPlaying(!playing)
+	// 	// playing ? audio.pause() : audio.play()
+	// 	if (playing) {
+	// 		audio.pause()
+	// 	} else {
+	// 		audio.play()
+	// 	}
+	// }
 	return (
 		<div>
 			<div className="container w-screen h-full pb-2 my-2 text-gray-700 rounded-sm shadow-sm ">
