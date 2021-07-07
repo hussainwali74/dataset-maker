@@ -8,6 +8,7 @@ function App() {
 			<Sentence />
 			<Sentence />
 			<Sentence />
+			<Sentence />
 		</div>
 	)
 }
