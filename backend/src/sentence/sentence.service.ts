@@ -19,6 +19,15 @@ export class SentenceService {
     }
 
   }
+  async findAByConditionWithRelations(condition, relations) {
+
+    try {
+      return await this.sentenceRespository.find({ where: condition, relations: relations });
+    } catch (error) {
+      throw new HttpException(error, error.status)
+    }
+
+  }
 
   async findOne(id: number) {
 

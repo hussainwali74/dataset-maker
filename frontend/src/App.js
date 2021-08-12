@@ -1,6 +1,6 @@
-import { Route, BrowserRouter as Router, Switch } from "react-router-dom"
+import { Route, BrowserRouter as Router } from "react-router-dom"
 import "./App.css"
-import Sentence from "./components/sentence.component"
+import Sentence from "./pages/sentence.page"
 import RegisterPage from "./pages/register.page"
 import LoginPage from "./pages/login.page"
 import ProtectedRoute from "./helpers/ProtectedRoute"

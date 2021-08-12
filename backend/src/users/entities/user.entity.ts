@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { LanguageEntity } from "src/language/entities/language.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { SentenceToSpeakerEntity } from "src/sentence/entities/sentencetospeaker.entity";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('user')
 export class UserEntity {
@@ -25,7 +26,10 @@ export class UserEntity {
     role: string;
 
     //speaker
-    @OneToMany(() => LanguageEntity, language => language.speaker)
-    language: LanguageEntity[];
+    @OneToMany(() => SentenceToSpeakerEntity, sentenceToSpeaker => sentenceToSpeaker.speaker, { cascade: true })
+    sentenceToSpeaker: SentenceToSpeakerEntity[]
 
+    @ManyToMany(() => LanguageEntity)
+    @JoinTable()
+    languages: LanguageEntity[];
 }

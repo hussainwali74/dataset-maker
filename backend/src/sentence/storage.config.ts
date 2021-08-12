@@ -2,6 +2,7 @@ import { diskStorage } from "multer";
 import { extname } from "path";
 
 export const storage = diskStorage({
+
   destination: './uploads',
   filename: (req, file, callback) => {
     callback(null, generateFilename(file));
@@ -10,11 +11,7 @@ export const storage = diskStorage({
 
 function generateFilename(file) {
 
-  console.log('-----------------------------------------------------')
-  console.log("file.originalname :>>", file.originalname)
-  console.log('-----------------------------------------------------')
-
-  return `${Date.now()}${extname(file.originalname)}`;
+  return `${file.originalname}`;
 }
 
 // ---------------------------------------------------------------------

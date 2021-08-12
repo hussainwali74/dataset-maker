@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { LanguageEntity } from "src/language/entities/language.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { SentenceToSpeakerEntity } from "./sentencetospeaker.entity";
 
 @Entity('sentence')
 export class SentenceEntity {
@@ -23,5 +24,9 @@ export class SentenceEntity {
     @ManyToOne(() => LanguageEntity, language => language.sentences)
     @JoinColumn({ referencedColumnName: 'id', name: 'language_id' })
     language: LanguageEntity;
+
+    //one sentence can have many speakers,
+    @OneToMany(() => SentenceToSpeakerEntity, sentenceToSpeaker => sentenceToSpeaker.sentence, { cascade: true })
+    sentenceToSpeaker: SentenceToSpeakerEntity[]
 
 }

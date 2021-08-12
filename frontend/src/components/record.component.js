@@ -4,6 +4,7 @@ import { useReactMediaRecorder } from "react-media-recorder"
 import { BsThreeDots } from "react-icons/bs"
 // const axios = require(axios)
 const Record = () => {
+	const [baseUrl, setBaseUrl] = useState("http://localhost:5000/")
 	const [recording, setRecording] = useState(false)
 
 	const { status, startRecording, stopRecording, mediaBlobUrl, clearBlobUrl } = useReactMediaRecorder({
@@ -12,10 +13,13 @@ const Record = () => {
 		onStop: (blobUrl, blob) => {
 			const url = URL.createObjectURL(blob)
 			let formData = new FormData()
-			formData.append("file", blob, "blobUrl.wav")
+			//person_id-language_id-sentence_id-date
+			const today = new Date()
+
+			formData.append("file", blob, `2-3-4-date.wav`)
 
 			axios
-				.post("http://localhost:5000/sentence/upload", formData)
+				.post(baseUrl + "sentence/upload_audio", formData)
 				.then((d) => console.log("after post blob :>>", d))
 				.catch((e) => console.log("error in post blob :>>", e))
 		},
