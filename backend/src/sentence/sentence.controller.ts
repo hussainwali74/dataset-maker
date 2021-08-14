@@ -12,6 +12,7 @@ const path = require("path")
 import * as csv from 'fast-csv';
 const fs = require('fs');
 import { unlink } from 'fs/promises';
+import { SharedService } from 'src/shared/shared.service';
 
 @ApiUnauthorizedResponse({ description: 'please provide a valid token' })
 @ApiBearerAuth('token')
@@ -19,7 +20,7 @@ import { unlink } from 'fs/promises';
 @Controller('sentence')
 export class SentenceController {
 
-  constructor(private readonly sentenceService: SentenceService) { }
+  constructor(private readonly sentenceService: SentenceService, private sharedService: SharedService) { }
 
   @Get()
   findAll() {
@@ -62,40 +63,56 @@ export class SentenceController {
     })
   )
   async uploadFiles(@UploadedFile() file) {
+
+    // 1. upload file, get filepath
+    // 2. save to db
+    // 3. return filepath
     const filepath = file.path;
     // todo make getUser decorator
 
-    console.log('-----------------------------------------------------')
-    console.log("filepath :>>", filepath)
-    console.log('-----------------------------------------------------')
 
-    const username = "asma4"
+    const filename = filepath.split('\\')[1];
+    const filename_split = filename.split('-');
+    const username = filename_split[0]
 
+    //check if folder for the speaker exists, if not create and move file to that folder
     try {
       await this.createNewFolder(username)
     } catch (error) { console.log("error in creating folder :>>", error) }
+    //upload file and move to speaker's folder
+    try {
+      const currentPath = path.join("uploads", file.originalname);
+      const destinationPath = path.join("uploads/" + username, file.originalname);
 
+      mv(currentPath, destinationPath, function (err) {
+        if (err) {
+          console.log("err in moving file :>>", err)
+          throw err
+        } else {
+          console.log("Successfully moved the file!");
+        }
+        return;
+      });
+    } catch (error) {
+      return this.sharedService.handleError(error)
+    }
 
+    // add to DB
 
-    const currentPath = path.join("uploads", file.originalname);
-    const destinationPath = path.join("uploads/" + username, file.originalname);
     console.log('-----------------------------------------------------')
-    console.log("currentPath :>>", currentPath)
-    console.log("destinationPath :>>", destinationPath)
+    console.log("adding to DB :>>")
     console.log('-----------------------------------------------------')
 
-    mv(currentPath, destinationPath, function (err) {
-      if (err) {
-        throw err
-      } else {
-        console.log("Successfully moved the file!");
-      }
-    });
+
+
+
+
 
   }
 
   async createNewFolder(username: string) {
     const dir = 'uploads/' + username;
+
     if (!await fs.existsSync(dir)) {
       await fs.mkdirSync(dir, { recursive: true });
     }
