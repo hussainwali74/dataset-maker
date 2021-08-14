@@ -3,9 +3,11 @@ import React, { useState } from "react"
 import { useReactMediaRecorder } from "react-media-recorder"
 import { BsThreeDots } from "react-icons/bs"
 // const axios = require(axios)
-const Record = () => {
+
+const Record = ({ sample, sentence_id, language_id }) => {
 	const [baseUrl, setBaseUrl] = useState("http://localhost:5000/")
 	const [recording, setRecording] = useState(false)
+	const { id, name } = JSON.parse(localStorage.getItem("user"))
 
 	const { status, startRecording, stopRecording, mediaBlobUrl, clearBlobUrl } = useReactMediaRecorder({
 		audio: true,
@@ -14,12 +16,22 @@ const Record = () => {
 			const url = URL.createObjectURL(blob)
 			let formData = new FormData()
 			//person_id-language_id-sentence_id-date
-			const today = new Date()
 
-			formData.append("file", blob, `2-3-4-date.wav`)
+			//person_name-person_id-language_id-sentence_id-date
+			const today = new Date()
+			// const file_name = `${id}-${language_id}-${sentence_id}-${today.toISOString()}.wav`
+			const file_name = `${name}-${id}-${language_id}-${sentence_id}-${today.toDateString()}.wav`
+			formData.append("file", blob, file_name)
+
+			let upload_url
+			if (sample) {
+				upload_url = baseUrl + "sentence/upload_audio_sample"
+			} else {
+				upload_url = baseUrl + "sentence/upload_audio"
+			}
 
 			axios
-				.post(baseUrl + "sentence/upload_audio", formData)
+				.post(upload_url, formData)
 				.then((d) => console.log("after post blob :>>", d))
 				.catch((e) => console.log("error in post blob :>>", e))
 		},
@@ -31,6 +43,14 @@ const Record = () => {
 			startRecording()
 		} else {
 			stopRecording()
+		}
+	}
+
+	const getStartRecordingText = () => {
+		if (sample !== undefined) {
+			return "Start Recording Sample"
+		} else {
+			return "Start Recording"
 		}
 	}
 
@@ -60,7 +80,7 @@ const Record = () => {
 					}   border-2 rounded-full shadow-sm flex-no-shrink `}
 					onClick={() => handleStartRecording(startRecording, stopRecording)}
 				>
-					{recording ? "Stop Recording" : mediaBlobUrl ? "Record Again" : "Start Recording"}
+					{recording ? "Stop Recording" : mediaBlobUrl ? "Record Again" : getStartRecordingText()}
 				</button>
 			</div>
 		</div>

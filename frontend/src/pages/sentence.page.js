@@ -21,23 +21,10 @@ const Sentence = () => {
 		setSelectedLanguageId(e.target.value)
 		getSentences(e.target.value)
 	}
+
 	const getSentences = async (id) => {
-		console.log("-------------------------------------------------------")
-		console.log("selectedLanguageId :>>", selectedLanguageId)
-		console.log("-------------------------------------------------------")
 		const { data } = await axios.get(baseUrl + "sentence/language/" + id)
-
-		console.log("-------------------------------------------------------")
-		console.log("data :>>", data)
-		console.log("-------------------------------------------------------")
-
 		setSentences(data)
-	}
-
-	if (sentences.length) {
-		console.log("-------------------------------------------------------")
-		console.log("sentences :>>", sentences)
-		console.log("-------------------------------------------------------")
 	}
 
 	let url = "https://audio-previews.elements.envatousercontent.com/files/142778859/preview.mp3"
@@ -73,18 +60,32 @@ const Sentence = () => {
 							<div className="p-4 mb-0 bg-gray-100 border-2 rounded-md sentence">
 								<div className="pb-2 text" title={sentence.english_meaning}>
 									{sentence.sentence}
+									{"http://localhost:5000/" + sentence.audio}
 								</div>
-								<div className="pt-2 border-t-2 audio-buttons">
-									<div className="flex items-center justify-around px-2 ">
-										<audio controls className="w-full ">
-											<source src={sentence.audio | url} type="audio/ogg" />
-											<source src="horse.mp3" type="audio/mpeg" />
-											Your browser does not support the audio element.
-										</audio>
+								{sentence.audio ? (
+									<div className="pt-2 border-t-2 audio-buttons">
+										<div className="flex items-center justify-around px-2 ">
+											<audio controls className="w-full ">
+												<source
+													src={"http://localhost:5000/" + sentence.audio}
+													type="audio/ogg"
+												/>
+												<source src="horse.mp3" type="audio/mpeg" />
+												Your browser does not support the audio element.
+											</audio>
+										</div>
 									</div>
-								</div>
+								) : (
+									<div className="record ">
+										<Record
+											sample={true}
+											sentence_id={sentence.id}
+											language_id={selectedLanguageId}
+										/>
+									</div>
+								)}
 								<div className="record ">
-									<Record />
+									<Record sentence_id={sentence.id} language_id={selectedLanguageId} />
 								</div>
 							</div>
 						</div>
