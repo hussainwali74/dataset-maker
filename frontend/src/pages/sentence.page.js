@@ -5,6 +5,7 @@ import Record from "../components/record.component"
 const Sentence = () => {
 	const [languages, setLanguages] = useState([])
 	const [selectedLanguageId, setSelectedLanguageId] = useState()
+	const [selectedLanguageName, setSelectedLanguageName] = useState()
 	const [baseUrl, setBaseUrl] = useState("http://localhost:5000/")
 
 	const [sentences, setSentences] = useState([])
@@ -19,6 +20,9 @@ const Sentence = () => {
 
 	const handleSelectLanguage = (e) => {
 		setSelectedLanguageId(e.target.value)
+		const languagename = languages.find((x) => x.id == e.target.value)
+
+		setSelectedLanguageName(languagename.name)
 		getSentences(e.target.value)
 	}
 
@@ -81,11 +85,16 @@ const Sentence = () => {
 											sample={true}
 											sentence_id={sentence.id}
 											language_id={selectedLanguageId}
+											language_name={selectedLanguageName}
 										/>
 									</div>
 								)}
 								<div className="record ">
-									<Record sentence_id={sentence.id} language_id={selectedLanguageId} />
+									<Record
+										sentence_id={sentence.id}
+										language_id={selectedLanguageId}
+										language_name={selectedLanguageName}
+									/>
 								</div>
 							</div>
 						</div>
