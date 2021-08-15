@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Res, HttpException } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { SentenceEntity } from './entities/sentence.entity';
 import { SentenceService } from './sentence.service';
@@ -6,13 +6,15 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { storage, storageCsv } from './storage.config';
 const mv = require('mv');
 const path = require("path")
-
+// import csv from 'csv-parser';
 
 
 import * as csv from 'fast-csv';
 const fs = require('fs');
 import { unlink } from 'fs/promises';
 import { SharedService } from 'src/shared/shared.service';
+import { SentenceToSpeakerEntity } from './entities/sentencetospeaker.entity';
+import { SentenceToSpeakerService } from './sentencetospeacker.service';
 
 @ApiUnauthorizedResponse({ description: 'please provide a valid token' })
 @ApiBearerAuth('token')
@@ -20,7 +22,11 @@ import { SharedService } from 'src/shared/shared.service';
 @Controller('sentence')
 export class SentenceController {
 
-  constructor(private readonly sentenceService: SentenceService, private sharedService: SharedService) { }
+  constructor(
+    private readonly sentenceService: SentenceService,
+    private sharedService: SharedService,
+    private sentenceToSpeakerService: SentenceToSpeakerService,
+  ) { }
 
   @Get()
   findAll() {
@@ -56,6 +62,21 @@ export class SentenceController {
   //              AUDIO
   // ==================================================================
 
+  @Post('upload_audio_sample')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage
+    })
+  )
+  async uploadSampleFiles(@UploadedFile() file) {
+    try {
+      const result = await this.handFileUploadAndDb(file, true)
+      return this.sharedService.handleSuccess(result)
+    } catch (error) {
+      return this.sharedService.handleError(error)
+    }
+
+  }
   @Post('upload_audio')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -63,6 +84,16 @@ export class SentenceController {
     })
   )
   async uploadFiles(@UploadedFile() file) {
+    try {
+      const result = await this.handFileUploadAndDb(file, false)
+      return this.sharedService.handleSuccess(result)
+    } catch (error) {
+      return this.sharedService.handleError(error)
+    }
+
+  }
+
+  async handFileUploadAndDb(file, sample: boolean = false) {
 
     // 1. upload file, get filepath
     // 2. save to db
@@ -70,19 +101,23 @@ export class SentenceController {
     const filepath = file.path;
     // todo make getUser decorator
 
-
     const filename = filepath.split('\\')[1];
+    //person_name-person_id-language_id-sentence_id-date-language_name
     const filename_split = filename.split('-');
     const username = filename_split[0]
+    const sentence_id = filename_split[3]
+    const languagename = filename_split[5].split('.')[0]
 
     //check if folder for the speaker exists, if not create and move file to that folder
     try {
-      await this.createNewFolder(username)
-    } catch (error) { console.log("error in creating folder :>>", error) }
+      await this.createNewFolder(languagename, username, sample)
+    } catch (error) { console.log("error in creating folder :>>", error); return this.sharedService.handleError(error) }
     //upload file and move to speaker's folder
+
     try {
       const currentPath = path.join("uploads", file.originalname);
-      const destinationPath = path.join("uploads/" + username, file.originalname);
+      const destPath = sample ? "uploads/" + languagename + "/sample" : "uploads/" + languagename + "/" + username;
+      const destinationPath = path.join(destPath, file.originalname);
 
       mv(currentPath, destinationPath, function (err) {
         if (err) {
@@ -94,27 +129,70 @@ export class SentenceController {
         return;
       });
     } catch (error) {
-      return this.sharedService.handleError(error)
+      throw new HttpException(error, error.status)
     }
 
     // add to DB
+    if (sample) {
+      try {
+        let sentenceFromDb = await this.sentenceService.findOne(sentence_id);
+        sentenceFromDb.audio = languagename + '/sample/' + file.originalname;
+        await this.sentenceService.update(sentence_id, sentenceFromDb);
+      } catch (error) {
+        throw new HttpException(error, error.status)
+      }
+    } else {
 
-    console.log('-----------------------------------------------------')
-    console.log("adding to DB :>>")
-    console.log('-----------------------------------------------------')
+      let sentenceToSpeaker: SentenceToSpeakerEntity;
+      try {
+        sentenceToSpeaker = await this.sentenceToSpeakerService.findOneByCondition({ sentence: filename_split[3], speaker: filename_split[1] })
 
+      } catch (error) {
+        throw new HttpException(error, error.status)
+      }
 
+      let update = true;
+      if (!sentenceToSpeaker) {
+        update = false;
+        sentenceToSpeaker = new SentenceToSpeakerEntity()
+      }
+      sentenceToSpeaker.audio_url = file.originalname;
+      sentenceToSpeaker.sentence = filename_split[3];
+      sentenceToSpeaker.speaker = filename_split[1];
 
+      // save middletable data
+      try {
+        let result;
+        if (!update) {
+          console.log("creating")
+          result = await this.sentenceToSpeakerService.create(sentenceToSpeaker);
+        } else {
+          result = await this.sentenceToSpeakerService.update(sentenceToSpeaker.id, sentenceToSpeaker);
+        }
+        return result
 
-
-
+      } catch (error) {
+        console.log("error in create or update sentencetospeacker", error)
+        throw new HttpException(error, error.status)
+      }
+    }
   }
 
-  async createNewFolder(username: string) {
-    const dir = 'uploads/' + username;
+  async createNewFolder(language: string, username: string, sample: boolean = false) {
+    let dir;
+    if (!sample) {
+      dir = 'uploads/' + language + '/' + username;
+    } else {
+      dir = 'uploads/' + language + '/sample'
+    }
 
-    if (!await fs.existsSync(dir)) {
-      await fs.mkdirSync(dir, { recursive: true });
+    try {
+      const direxists = await fs.existsSync(dir)
+      if (!direxists) {
+        await fs.mkdirSync(dir, { recursive: true });
+      }
+    } catch (error) {
+      throw new HttpException(error, error.status)
     }
 
   }
@@ -132,24 +210,45 @@ export class SentenceController {
     })
   )
   async uploadCSVFiles(@UploadedFile() file) {
-    console.log(file);
+    try {
+      await this.handleCSV(file);
+    } catch (error) {
+      return this.sharedService.handleError(error)
+    }
+    return this.sharedService.handleSuccess("Upload complete")
+  }
+
+  async handleCSV(file) {
+    console.log(`file`, file)
     const filepath = file.path;
-
     //parse csv
-    fs.createReadStream(filepath)
-      .pipe(csv.parse({ headers: ['sentence'] }))
-      .on('error', error => console.log(`error`, error))
-      .on('data', row => console.log(`row`, row.sentence))
-      .on('end', (rowCount: number) => console.log(`rowCount`, rowCount))
+    try {
 
+
+      var resultData: any[] = [];
+      await fs.createReadStream(filepath)
+        .pipe(csv.parse({ headers: ['sentence'] }))
+        .on('error', error => console.log(`error`, error))
+        .on('data', (row) => {
+          resultData.push(row)
+        })
+        .on('end', async (data, rowCount: number) => {
+          await this.sentenceService.createMany(resultData)
+          console.log(`data`, resultData)
+        })
+
+      console.log('================================================')
+      console.log("resultData :>>", resultData)
+      console.log('================================================')
+    } catch (error) {
+      throw new HttpException(error, error.statusy)
+    }
     //delete file
     try {
       await unlink(filepath)
       console.log("successfully deleted file ", filepath)
     } catch (error) {
-      console.log('-----------------------------------------------------')
-      console.log("error in deleting file :>>", error)
-      console.log('-----------------------------------------------------')
+      throw new HttpException(error, error.status)
     }
 
   }

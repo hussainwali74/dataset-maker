@@ -13,6 +13,10 @@ export class SentenceEntity {
     @Column('varchar')
     sentence: string
 
+    @ApiProperty({ type: String, example: 'gute sentence cchen' })
+    @Column({ type: 'boolean', default: false })
+    sample: boolean
+
     @ApiProperty({ type: String, example: 'this sentence' })
     @Column('varchar')
     english_meaning: string

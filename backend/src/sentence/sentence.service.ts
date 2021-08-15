@@ -39,10 +39,20 @@ export class SentenceService {
 
   }
 
-  async create(word: SentenceEntity) {
+  async create(sentece: SentenceEntity) {
 
     try {
-      const data = await this.sentenceRespository.create(word)
+      const data = await this.sentenceRespository.create(sentece)
+      return await this.sentenceRespository.save(data);
+    } catch (error) {
+      throw new HttpException(error, error.status)
+    }
+
+  }
+  async createMany(sentece: SentenceEntity[]) {
+
+    try {
+      const data = await this.sentenceRespository.create(sentece)
       return await this.sentenceRespository.save(data);
     } catch (error) {
       throw new HttpException(error, error.status)
@@ -50,10 +60,10 @@ export class SentenceService {
 
   }
 
-  async update(id: number, word: SentenceEntity) {
+  async update(id: number, sentece: SentenceEntity) {
 
     try {
-      return await this.sentenceRespository.update(id, word);
+      return await this.sentenceRespository.update(id, sentece);
     } catch (error) {
       throw new HttpException(error, error.status)
     }

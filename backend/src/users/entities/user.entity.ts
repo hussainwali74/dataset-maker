@@ -22,7 +22,8 @@ export class UserEntity {
     password: string;
 
     @ApiProperty({ type: String, example: "admin" })
-    @Column('varchar')
+    //roles:['admin','language_expert']
+    @Column({ type: 'varchar', default: 'language_expert' })
     role: string;
 
     //speaker

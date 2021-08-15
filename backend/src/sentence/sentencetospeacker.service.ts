@@ -31,6 +31,16 @@ export class SentenceToSpeakerService {
 
   }
 
+  async findOneByCondition(conditions) {
+
+    try {
+      return await this.sentenceToSpeakerRepository.findOne(conditions);
+    } catch (error) {
+      throw new HttpException(error, error.status)
+    }
+
+  }
+
   async create(word: SentenceToSpeakerEntity) {
 
     try {

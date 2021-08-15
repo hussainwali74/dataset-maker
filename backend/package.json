@@ -34,6 +34,7 @@
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
+    "csv-parser": "^3.0.0",
     "fast-csv": "^4.3.6",
     "mv": "^2.1.1",
     "mysql2": "^2.2.5",
