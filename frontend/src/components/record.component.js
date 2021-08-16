@@ -8,54 +8,56 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 	const [recording, setRecording] = useState(false)
 	const { id, name } = JSON.parse(localStorage.getItem("user"))
 
-	const { status, startRecording, stopRecording, mediaBlobUrl, clearBlobUrl } = useReactMediaRecorder({
-		audio: true,
-		type: "audio/wav",
-		onStop: (blobUrl, blob) => {
-			console.log("onStop recording")
-			const url = URL.createObjectURL(blob)
-			let formData = new FormData()
+	const { status, startRecording, stopRecording, error, mediaBlobUrl, clearBlobUrl } =
+		useReactMediaRecorder({
+			audio: true,
+			type: "audio/wav",
+			onStop: (blobUrl, blob) => {
+				console.log("onStop recording")
+				const url = URL.createObjectURL(blob)
+				let formData = new FormData()
 
-			//person_name-person_id-language_id-sentence.id-date
-			const today = new Date()
-			// const file_name = `${id}-${language_id}-${sentence.id}-${today.toISOString()}.wav`
-			const file_name = `${name}-${id}-${language_id}-${
-				sentence.id
-			}-${today.toDateString()}-${language_name}.wav`
+				//person_name-person_id-language_id-sentence.id-date
+				const today = new Date()
+				// const file_name = `${id}-${language_id}-${sentence.id}-${today.toISOString()}.wav`
+				const file_name = `${name}-${id}-${language_id}-${
+					sentence.id
+				}-${today.toDateString()}-${language_name}.wav`
 
-			console.log("-------------------------------------------------------")
-			console.log("file_name :>>", file_name)
-			console.log("-------------------------------------------------------")
+				console.log("-------------------------------------------------------")
+				console.log("file_name :>>", file_name)
+				console.log("-------------------------------------------------------")
 
-			formData.append("file", blob, file_name)
+				formData.append("file", blob, file_name)
 
-			let upload_url
-			if (sample) {
-				upload_url = "sentence/upload_audio_sample"
-			} else {
-				upload_url = "sentence/upload_audio"
-			}
+				let upload_url
+				if (sample) {
+					upload_url = "sentence/upload_audio_sample"
+				} else {
+					upload_url = "sentence/upload_audio"
+				}
 
-			console.log(`upload_url`, upload_url)
-			axios
-				.post(upload_url, formData)
-				.then((d) => console.log("after post blob :>>", d))
-				.catch((e) => console.log("error in post blob :>>", e))
-		},
-	})
+				console.log(`upload_url`, upload_url)
+				axios
+					.post(upload_url, formData)
+					.then((d) => console.log("after post blob :>>", d))
+					.catch((e) => console.log("error in post blob :>>", e))
+			},
+		})
 
 	const handleStartRecording = () => {
-		console.log("handleStartRecording")
 		setRecording(!recording)
 		if (!recording) {
 			clearBlobUrl()
 			startRecording()
-			console.log("startRecording()")
 		} else {
-			console.log("stopRecording()")
 			stopRecording()
 		}
 	}
+
+	console.log("-------------------------------------------------------")
+	console.log("mediaBlobUrl :>>", mediaBlobUrl)
+	console.log("-------------------------------------------------------")
 
 	const getStartRecordingText = () => {
 		if (sample !== undefined) {
