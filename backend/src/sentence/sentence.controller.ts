@@ -171,8 +171,13 @@ export class SentenceController {
     // 3. return filepath
     const filepath = file.path;
     // todo make getUser decorator
-    const filename = filepath.split('\\')[1];
+    let filename;
 
+    filename = filepath.split('\\')[1];
+    if (!filename) {
+      console.log("filename undefined:>>", filename)
+      filename = filepath.split('/')[1]
+    }
     console.log('================================================')
     console.log("filename :>>", filename)
     console.log('================================================')
