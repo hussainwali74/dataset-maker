@@ -148,6 +148,7 @@ export class SentenceController {
     }
 
   }
+
   @Post('upload_audio')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -165,20 +166,20 @@ export class SentenceController {
   }
 
   async handFileUploadAndDb(file, sample: boolean = false) {
-
+    console.log(`sample in handleFileUploadAndDb`, sample)
     // 1. upload file, get filepath
     // 2. save to db
     // 3. return filepath
     const filepath = file.path;
     // todo make getUser decorator
-
+    console.log(`filepath`, filepath)
     const filename = filepath.split('\\')[1];
     //person_name-person_id-language_id-sentence_id-date-language_name
     const filename_split = filename.split('-');
     const username = filename_split[0]
     const sentence_id = filename_split[3]
     const languagename = filename_split[5].split('.')[0]
-
+    console.log(`languagename in handleFileUploadAndDb`, languagename)
     //check if folder for the speaker exists, if not create and move file to that folder
     try {
 
@@ -216,6 +217,7 @@ export class SentenceController {
       try {
         let sentenceFromDb = await this.sentenceService.findOne(sentence_id);
         sentenceFromDb.audio = languagename + '/sample/' + file.originalname;
+
 
         console.log('================================================')
         console.log("sentencefromDb.audio :>>", sentenceFromDb.audio)
