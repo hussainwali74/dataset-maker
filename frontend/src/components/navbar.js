@@ -78,11 +78,11 @@ const Navbar = () => {
 											className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white "
 											aria-current="page"
 										>
-											Dashboard
+											Home
 										</p>
 									</NavLink>
 
-									<NavLink
+									{/* <NavLink
 										to={"/sentence-upload"}
 										activeClassName="text-white bg-gray-900 rounded-md"
 									>
@@ -98,7 +98,7 @@ const Navbar = () => {
 										<p className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white">
 											Upload Sample Sentences
 										</p>
-									</NavLink>
+									</NavLink> */}
 
 									<NavLink
 										to={"/logout"}

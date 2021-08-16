@@ -88,9 +88,9 @@ const LoginPage = () => {
 					>
 						Login
 					</button>
-					<Link className="pl-3 text-sm text-indigo-700" to="/register">
+					{/* <Link className="pl-3 text-sm text-indigo-700" to="/register">
 						new here? Create a new account
-					</Link>
+					</Link> */}
 				</div>
 			</form>
 		</div>
