@@ -166,14 +166,17 @@ export class SentenceController {
   }
 
   async handFileUploadAndDb(file, sample: boolean = false) {
-    console.log(`sample in handleFileUploadAndDb`, sample)
     // 1. upload file, get filepath
     // 2. save to db
     // 3. return filepath
     const filepath = file.path;
     // todo make getUser decorator
-    console.log(`filepath`, filepath)
     const filename = filepath.split('\\')[1];
+
+    console.log('================================================')
+    console.log("filename :>>", filename)
+    console.log('================================================')
+
     //person_name-person_id-language_id-sentence_id-date-language_name
     const filename_split = filename.split('-');
     const username = filename_split[0]
