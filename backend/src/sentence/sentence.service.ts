@@ -82,7 +82,7 @@ export class SentenceService {
         if (sentences[i]['sample'] && !data.sample) {
           console.log(`updating `, i)
           try {
-
+            await this.update(data.id, { sample: true })
           } catch (error) {
 
             console.log('================================================')
@@ -90,7 +90,6 @@ export class SentenceService {
             console.log('================================================')
 
           }
-          await this.update(data.id, { sample: true })
         }
       }
       if (!data) {
@@ -108,6 +107,11 @@ export class SentenceService {
     try {
       if (findalSentences.length) {
 
+
+        console.log('================================================')
+        console.log('CREATINGSENTENCES')
+        console.log(`findalSenteces.length`, findalSentences.length)
+        console.log('================================================')
 
         const data = await this.sentenceRespository.create(findalSentences)
         return await this.sentenceRespository.save(data);

@@ -27,8 +27,8 @@ import { ConfigModule } from '@nestjs/config';
       password: 'ds_maker',
       database: 'ds_maker',
       autoLoadEntities: true,
-       synchronize: true,
-       logging: true,
+      //  synchronize: true,
+      //  logging: true,
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
