@@ -52,12 +52,9 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 			startRecording()
 		} else {
 			stopRecording()
+			console.log("mediaBlobUrl :>>", mediaBlobUrl)
 		}
 	}
-
-	console.log("-------------------------------------------------------")
-	console.log("mediaBlobUrl :>>", mediaBlobUrl)
-	console.log("-------------------------------------------------------")
 
 	const getStartRecordingText = () => {
 		if (sample !== undefined) {
