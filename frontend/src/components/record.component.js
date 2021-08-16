@@ -9,41 +9,44 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 	const { id, name } = JSON.parse(localStorage.getItem("user"))
 
 	const { status, startRecording, stopRecording, error, mediaBlobUrl, clearBlobUrl } =
-		useReactMediaRecorder({
-			audio: true,
-			type: "audio/wav",
-			onStop: (blobUrl, blob) => {
-				console.log("onStop recording")
-				const url = URL.createObjectURL(blob)
-				let formData = new FormData()
+		useReactMediaRecorder(
+			{
+				audio: true,
+				type: "audio/wav",
+				onStop: (blobUrl, blob) => {
+					console.log("onStop recording")
+					const url = URL.createObjectURL(blob)
+					let formData = new FormData()
 
-				//person_name-person_id-language_id-sentence.id-date
-				const today = new Date()
-				// const file_name = `${id}-${language_id}-${sentence.id}-${today.toISOString()}.wav`
-				const file_name = `${name}-${id}-${language_id}-${
-					sentence.id
-				}-${today.toDateString()}-${language_name}.wav`
+					//person_name-person_id-language_id-sentence.id-date
+					const today = new Date()
+					// const file_name = `${id}-${language_id}-${sentence.id}-${today.toISOString()}.wav`
+					const file_name = `${name}-${id}-${language_id}-${
+						sentence.id
+					}-${today.toDateString()}-${language_name}.wav`
 
-				console.log("-------------------------------------------------------")
-				console.log("file_name :>>", file_name)
-				console.log("-------------------------------------------------------")
+					console.log("-------------------------------------------------------")
+					console.log("file_name :>>", file_name)
+					console.log("-------------------------------------------------------")
 
-				formData.append("file", blob, file_name)
+					formData.append("file", blob, file_name)
 
-				let upload_url
-				if (sample) {
-					upload_url = "sentence/upload_audio_sample"
-				} else {
-					upload_url = "sentence/upload_audio"
-				}
+					let upload_url
+					if (sample) {
+						upload_url = "sentence/upload_audio_sample"
+					} else {
+						upload_url = "sentence/upload_audio"
+					}
 
-				console.log(`upload_url`, upload_url)
-				axios
-					.post(upload_url, formData)
-					.then((d) => console.log("after post blob :>>", d))
-					.catch((e) => console.log("error in post blob :>>", e))
+					console.log(`upload_url`, upload_url)
+					axios
+						.post(upload_url, formData)
+						.then((d) => console.log("after post blob :>>", d))
+						.catch((e) => console.log("error in post blob :>>", e))
+				},
 			},
-		})
+			(error) => console.log("shsdsd", error)
+		)
 
 	const handleStartRecording = () => {
 		setRecording(!recording)
@@ -67,6 +70,7 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 	return (
 		<div>
 			<div className="flex flex-col items-center justify-center w-full p-2 space-y-2 bg-white border-t-2 md:space-y-0 xl:flex-row audio-buttons ">
+				{status}
 				{!mediaBlobUrl && recording && (
 					<p className="pr-2 text-sm text-gray-600 ">
 						<BsThreeDots className="w-8 h-8 text-yellow-500 transition-colors:{'bg-yellow-400'} animate-ping" />
