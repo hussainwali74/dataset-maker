@@ -21,8 +21,8 @@ export class UserService {
   }
 
   async findByPayload(payload: any) {
-    const { name } = payload;
-    return await this.findOneByOptions({ where: { name } })
+    const { email } = payload;
+    return await this.findOneByOptions({ where: { email } })
   }
 
   async findAll() {

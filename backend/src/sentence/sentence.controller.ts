@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Res, HttpException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Res, HttpException, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { SentenceEntity } from './entities/sentence.entity';
 import { SentenceService } from './sentence.service';
@@ -15,6 +15,11 @@ import { unlink } from 'fs/promises';
 import { SharedService } from 'src/shared/shared.service';
 import { SentenceToSpeakerEntity } from './entities/sentencetospeaker.entity';
 import { SentenceToSpeakerService } from './sentencetospeacker.service';
+import { Role } from 'src/auth/models/role.enum';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
 
 @ApiUnauthorizedResponse({ description: 'please provide a valid token' })
 @ApiBearerAuth('token')
@@ -28,19 +33,75 @@ export class SentenceController {
     private sentenceToSpeakerService: SentenceToSpeakerService,
   ) { }
 
+  // @Roles(Role.EXPERT)
+  // @UseGuards(JwtGuard, RolesGuard)
   @Get()
-  findAll() {
-    return this.sentenceService.findAll();
+  async findAll() {
+
+    let data;
+    try {
+      data = await this.sentenceService.findAll();
+    } catch (error) {
+      return this.sharedService.handleError(error)
+    }
+    return this.sharedService.handleSuccess(data)
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.sentenceService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    let data;
+    try {
+      data = await this.sentenceService.findOne(+id);
+
+    } catch (error) {
+      return this.sharedService.handleError(error)
+    }
+    return this.sharedService.handleSuccess(data)
   }
 
   @Get('language/:id')
-  getSentenceByLanguageId(@Param('id') id: string) {
-    return this.sentenceService.findAByConditionWithRelations({ language: +id }, ['sentenceToSpeaker']);
+  async getSentenceByLanguageId(@Param('id') id: number) {
+    let data;
+    try {
+      data = await this.sentenceService.findAByConditionWithRelations({ language: +id }, ['sentenceToSpeaker']);
+
+    } catch (error) {
+      return this.sharedService.handleError(error)
+    }
+    return this.sharedService.handleSuccess(data)
+  }
+
+  @Get('sample/language/:id')
+  async getSampleSentencesByLanguageId(@Param('id') id: number) {
+
+    console.log('================================================')
+    console.log("id :>>", id)
+    console.log('================================================')
+
+    let data;
+    try {
+      data = await this.sentenceService.findAByConditionWithRelations({ language: +id, sample: true }, ['sentenceToSpeaker']);
+
+      console.log('================================================')
+      console.log("data :>>", data)
+      console.log('================================================')
+
+    } catch (error) {
+      return this.sharedService.handleError(error)
+    }
+    return this.sharedService.handleSuccess(data)
+  }
+
+  @Get('sentence/:sentence')
+  async getSentenceBySentence(@Param('sentence') sentence: string) {
+    let data;
+    try {
+      data = await this.sentenceService.findAByCondition({ sentence });
+
+    } catch (error) {
+      return this.sharedService.handleError(error)
+    }
+    return this.sharedService.handleSuccess(data)
   }
 
 
@@ -53,6 +114,7 @@ export class SentenceController {
     const filePath = 'lll';
     return res.sendFile(filePath, { root: 'public' });
   }
+
   @Post()
   create(@Body() sentence: SentenceEntity) {
     return this.sentenceService.create(sentence);
@@ -201,7 +263,7 @@ export class SentenceController {
   //              CSV
   // ==================================================================
 
-  @Post('/upload_csv')
+  @Post('/upload_csv/:language_id')
   @UseInterceptors(
     FileInterceptor('file', {
       // dest: './uploads'
@@ -209,37 +271,56 @@ export class SentenceController {
 
     })
   )
-  async uploadCSVFiles(@UploadedFile() file) {
+  async uploadCSVFiles(@UploadedFile() file, @Param('language_id') language_id: number) {
     try {
-      await this.handleCSV(file);
+      await this.handleCSV(file, false, language_id);
     } catch (error) {
       return this.sharedService.handleError(error)
     }
     return this.sharedService.handleSuccess("Upload complete")
   }
 
-  async handleCSV(file) {
+
+  @Post('/upload_csv_sample/:language_id')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      // dest: './uploads'
+      storage: storageCsv
+
+    })
+  )
+  async uploadSampleCSVFiles(@UploadedFile() file, @Param('language_id') language_id: number) {
+
+    try {
+      await this.handleCSV(file, true, language_id);
+    } catch (error) {
+      return this.sharedService.handleError(error)
+    }
+    return this.sharedService.handleSuccess("Upload complete")
+  }
+
+
+  async handleCSV(file, sample: boolean, language: number) {
     console.log(`file`, file)
     const filepath = file.path;
     //parse csv
     try {
-
-
       var resultData: any[] = [];
       await fs.createReadStream(filepath)
         .pipe(csv.parse({ headers: ['sentence'] }))
         .on('error', error => console.log(`error`, error))
         .on('data', (row) => {
+          if (sample)
+            row['sample'] = true;
+          row['language'] = +language;
           resultData.push(row)
         })
         .on('end', async (data, rowCount: number) => {
+
           await this.sentenceService.createMany(resultData)
-          console.log(`data`, resultData)
+          // console.log(`data`, resultData)
         })
 
-      console.log('================================================')
-      console.log("resultData :>>", resultData)
-      console.log('================================================')
     } catch (error) {
       throw new HttpException(error, error.statusy)
     }
@@ -257,9 +338,17 @@ export class SentenceController {
   update(@Param('id') id: string, @Body() sentence: SentenceEntity) {
     return this.sentenceService.update(+id, sentence);
   }
+  // ==================================================================
+  //              CSV
+  // ==================================================================
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.sentenceService.remove(+id);
+  }
+
+  @Delete()
+  async removeaLL() {
+    return await this.sentenceService.removeAll();
   }
 }

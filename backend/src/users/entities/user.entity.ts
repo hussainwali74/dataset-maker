@@ -1,10 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Role } from "src/auth/models/role.enum";
 import { LanguageEntity } from "src/language/entities/language.entity";
 import { SentenceToSpeakerEntity } from "src/sentence/entities/sentencetospeaker.entity";
+import { SharedEntity } from "src/shared/shared.entity";
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('user')
-export class UserEntity {
+export class UserEntity extends SharedEntity {
 
     @PrimaryGeneratedColumn('increment')
     id: number;
@@ -23,7 +25,7 @@ export class UserEntity {
 
     @ApiProperty({ type: String, example: "admin" })
     //roles:['admin','language_expert']
-    @Column({ type: 'varchar', default: 'language_expert' })
+    @Column({ type: 'enum', enum: Role, default: Role.EXPERT })
     role: string;
 
     //speaker

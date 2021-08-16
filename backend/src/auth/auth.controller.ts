@@ -56,6 +56,7 @@ export class AuthController {
             email: user.email,
             user_id: user.id
         }
+
         try {
             const token = await this.authService.signPayload(payload);
             let { password, ...userfinal } = user;

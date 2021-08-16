@@ -1,9 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { LanguageEntity } from "src/language/entities/language.entity";
+import { SharedEntity } from "src/shared/shared.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('word')
-export class WordEntity {
+export class WordEntity extends SharedEntity {
 
     @PrimaryGeneratedColumn('increment')
     id: number;

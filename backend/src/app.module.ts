@@ -15,6 +15,7 @@ import { HttpErrorFilter } from './shared/http-error.filter';
 import { LoggingInterceptor } from './shared/loggin.interceptor';
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
 import { join } from 'path';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -39,7 +40,7 @@ import { join } from 'path';
     LanguageModule,
     WordModule,
     SentenceModule,
-
+    ConfigModule.forRoot()
   ],
   controllers: [AppController],
   providers: [
