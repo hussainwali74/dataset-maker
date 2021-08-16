@@ -1,12 +1,4 @@
-import Axios from "axios"
 import jwt_decode from "jwt-decode"
-
-export const axios = Axios.create({
-	baseURL: "http",
-	headers: {
-		"Content-type": "application/json",
-	},
-})
 
 export const TOKEN = "token"
 

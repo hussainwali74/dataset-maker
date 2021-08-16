@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from "react"
 import axios from "axios"
-import Navbar from "../components/navbar"
 import Record from "../components/record.component"
 import Wrapper from "../components/wrapper.component"
 const Sentence = () => {
 	const [languages, setLanguages] = useState([])
 	const [selectedLanguageId, setSelectedLanguageId] = useState()
 	const [selectedLanguageName, setSelectedLanguageName] = useState()
-	const [baseUrl, setBaseUrl] = useState("")
 
 	const [sentences, setSentences] = useState([])
 
 	useEffect(() => {
 		async function getLanguages() {
-			const { data } = await axios.get(baseUrl + "language")
+			const { data } = await axios.get("language")
 			setLanguages(data)
 			// ONLY BURUSHASKI NOW
 			setSelectedLanguageId(data[0].id)
@@ -32,7 +30,7 @@ const Sentence = () => {
 	}
 
 	const getSentences = async (id) => {
-		const { data } = await axios.get(baseUrl + "sentence/sample/language/" + id)
+		const { data } = await axios.get("sentence/sample/language/" + id)
 
 		console.log("-------------------------------------------------------")
 		console.log("data :>>", data)
