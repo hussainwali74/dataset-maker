@@ -12,6 +12,7 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 		audio: true,
 		type: "audio/wav",
 		onStop: (blobUrl, blob) => {
+			console.log("onStop recording")
 			const url = URL.createObjectURL(blob)
 			let formData = new FormData()
 
@@ -44,6 +45,7 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 	})
 
 	const handleStartRecording = () => {
+		console.log("handleStartRecording")
 		setRecording(!recording)
 		if (!recording) {
 			clearBlobUrl()
