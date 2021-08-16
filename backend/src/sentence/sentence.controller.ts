@@ -369,8 +369,9 @@ export class SentenceController {
     }
     //delete file
     try {
-      await unlink(filepath)
+      const data = await unlink(filepath)
       console.log("successfully deleted file ", filepath)
+      return data;
     } catch (error) {
       throw new HttpException(error, error.status)
     }
