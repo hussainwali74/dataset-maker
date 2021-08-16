@@ -335,11 +335,11 @@ export class SentenceController {
   async uploadSampleCSVFiles(@UploadedFile() file, @Param('language_id') language_id: number) {
 
     try {
-      await this.handleCSV(file, true, language_id);
+      const data = await this.handleCSV(file, true, language_id);
+      return data;
     } catch (error) {
       return this.sharedService.handleError(error)
     }
-    return this.sharedService.handleSuccess("Upload complete")
   }
 
 
