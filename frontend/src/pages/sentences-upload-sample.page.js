@@ -3,7 +3,7 @@ import { Link, useHistory } from "react-router-dom"
 import { useState } from "react"
 import Wrapper from "../components/wrapper.component"
 
-const SentenceUploadPage = () => {
+const SentenceUploadSamplePage = () => {
 	const history = useHistory()
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [file, setFile] = useState(null)
@@ -14,7 +14,7 @@ const SentenceUploadPage = () => {
 		fileData.append("file", file)
 		try {
 			// 1 is language_id => here=>Burushaski
-			const { data } = await axios.post("http://localhost:5000/sentence/upload_csv/1", fileData)
+			const { data } = await axios.post("http://localhost:5000/sentence/upload_csv_sample/1", fileData)
 
 			console.log("-------------------------------------------------------")
 			console.log("data :>>", data)
@@ -45,7 +45,7 @@ const SentenceUploadPage = () => {
 
 	return (
 		<Wrapper>
-			<h1 className="py-4 text-white">Upload sentences csv file for Burushaski Lanugage</h1>
+			<h1 className="py-4 text-white">Upload Sample sentences csv file for Burushaski Lanugage</h1>
 			<form
 				onSubmit={onHandleSubmit}
 				className="flex flex-col w-full p-2 space-y-1 text-left xl:space-y-4"
@@ -56,7 +56,7 @@ const SentenceUploadPage = () => {
 					</label>
 					<input
 						type="file"
-						className="w-40 px-4 py-0 text-white rounded-full xl:w-full form-input"
+						className="w-40 px-4 py-0 rounded-full xl:w-full form-input"
 						name="file"
 						onChange={handleChange}
 					/>
@@ -75,4 +75,4 @@ const SentenceUploadPage = () => {
 	)
 }
 
-export default SentenceUploadPage
+export default SentenceUploadSamplePage

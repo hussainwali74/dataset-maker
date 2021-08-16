@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react"
 import axios from "axios"
 import Navbar from "../components/navbar"
 import Record from "../components/record.component"
+import Wrapper from "../components/wrapper.component"
 const Sentence = () => {
 	const [languages, setLanguages] = useState([])
 	const [selectedLanguageId, setSelectedLanguageId] = useState()
@@ -14,6 +15,10 @@ const Sentence = () => {
 		async function getLanguages() {
 			const { data } = await axios.get(baseUrl + "language")
 			setLanguages(data)
+			// ONLY BURUSHASKI NOW
+			setSelectedLanguageId(data[0].id)
+			setSelectedLanguageName(data[0].name)
+			getSentences(data[0].id)
 		}
 		getLanguages()
 	}, [])
@@ -27,23 +32,28 @@ const Sentence = () => {
 	}
 
 	const getSentences = async (id) => {
-		const { data } = await axios.get(baseUrl + "sentence/language/" + id)
-		setSentences(data)
+		const { data } = await axios.get(baseUrl + "sentence/sample/language/" + id)
+
+		console.log("-------------------------------------------------------")
+		console.log("data :>>", data)
+		console.log("-------------------------------------------------------")
+
+		setSentences(data.data)
 	}
 
 	let url = "https://audio-previews.elements.envatousercontent.com/files/142778859/preview.mp3"
 	return (
-		<div className="w-full h-full overflow-hidden bg-primary">
-			<Navbar />
+		<Wrapper>
 			{/* ------------------------------------------------------ */}
 			{/* 						 select language			   */}
 			<div className="w-full p-0 md:px-10">
 				<div className="w-full h-full p-2 rounded-sm shadow-sm md:p-4 ">
 					<select
+						defaultValue={1}
 						onChange={handleSelectLanguage}
 						className="w-full px-3 py-2 bg-white border rounded outline-none"
 					>
-						<option className="py-1">Select Language</option>
+						{/* <option className="py-1">Select Language</option> */}
 						{languages &&
 							languages.map((language) => (
 								<option key={language.id} value={language.id} className="py-1">
@@ -64,7 +74,6 @@ const Sentence = () => {
 							<div className="p-4 mb-0 bg-gray-100 border-2 rounded-md sentence">
 								<div className="pb-2 text" title={sentence.english_meaning}>
 									{sentence.sentence}
-									{"http://localhost:5000/" + sentence.audio}
 								</div>
 								{sentence.audio ? (
 									<div className="pt-2 border-t-2 audio-buttons">
@@ -83,7 +92,7 @@ const Sentence = () => {
 									<div className="record ">
 										<Record
 											sample={true}
-											sentence_id={sentence.id}
+											sentence={sentence}
 											language_id={selectedLanguageId}
 											language_name={selectedLanguageName}
 										/>
@@ -91,7 +100,7 @@ const Sentence = () => {
 								)}
 								<div className="record ">
 									<Record
-										sentence_id={sentence.id}
+										sentence={sentence}
 										language_id={selectedLanguageId}
 										language_name={selectedLanguageName}
 									/>
@@ -100,7 +109,7 @@ const Sentence = () => {
 						</div>
 					))}
 			</div>
-		</div>
+		</Wrapper>
 	)
 }
 

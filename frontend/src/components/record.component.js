@@ -4,7 +4,7 @@ import { useReactMediaRecorder } from "react-media-recorder"
 import { BsThreeDots } from "react-icons/bs"
 // const axios = require(axios)
 
-const Record = ({ sample, sentence_id, language_id, language_name }) => {
+const Record = ({ sample, sentence, language_id, language_name }) => {
 	const [baseUrl, setBaseUrl] = useState("http://localhost:5000/")
 	const [recording, setRecording] = useState(false)
 	const { id, name } = JSON.parse(localStorage.getItem("user"))
@@ -16,10 +16,12 @@ const Record = ({ sample, sentence_id, language_id, language_name }) => {
 			const url = URL.createObjectURL(blob)
 			let formData = new FormData()
 
-			//person_name-person_id-language_id-sentence_id-date
+			//person_name-person_id-language_id-sentence.id-date
 			const today = new Date()
-			// const file_name = `${id}-${language_id}-${sentence_id}-${today.toISOString()}.wav`
-			const file_name = `${name}-${id}-${language_id}-${sentence_id}-${today.toDateString()}-${language_name}.wav`
+			// const file_name = `${id}-${language_id}-${sentence.id}-${today.toISOString()}.wav`
+			const file_name = `${name}-${id}-${language_id}-${
+				sentence.id
+			}-${today.toDateString()}-${language_name}.wav`
 
 			console.log("-------------------------------------------------------")
 			console.log("file_name :>>", file_name)

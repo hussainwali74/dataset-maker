@@ -1,5 +1,5 @@
 import { AiOutlineLogout } from "react-icons/ai"
-import { useHistory } from "react-router-dom"
+import { useHistory, NavLink } from "react-router-dom"
 const Navbar = () => {
 	const history = useHistory()
 	const logout = () => {
@@ -69,24 +69,45 @@ const Navbar = () => {
 							</div>
 							<div className="hidden sm:block sm:ml-6">
 								<div className="flex space-x-4">
-									<p
-										className="px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-md"
-										aria-current="page"
+									<NavLink
+										exact
+										to={"/"}
+										activeClassName="text-white bg-gray-900 rounded-md"
 									>
-										Dashboard
-									</p>
+										<p
+											className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white "
+											aria-current="page"
+										>
+											Dashboard
+										</p>
+									</NavLink>
 
-									<p className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white">
-										Team
-									</p>
+									<NavLink
+										to={"/sentence-upload"}
+										activeClassName="text-white bg-gray-900 rounded-md"
+									>
+										<p className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white">
+											Upload Sentences
+										</p>
+									</NavLink>
 
-									<p className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white">
-										Projects
-									</p>
+									<NavLink
+										to={"/sentence-upload-sample"}
+										activeClassName="text-white bg-gray-900 rounded-md"
+									>
+										<p className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white">
+											Upload Sample Sentences
+										</p>
+									</NavLink>
 
-									<p className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white">
-										Calendar
-									</p>
+									<NavLink
+										to={"/logout"}
+										activeClassName="text-white bg-gray-900 rounded-md"
+									>
+										<p className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white">
+											Logout
+										</p>
+									</NavLink>
 								</div>
 							</div>
 						</div>
