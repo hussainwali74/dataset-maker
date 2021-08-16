@@ -208,6 +208,11 @@ export class SentenceController {
       try {
         let sentenceFromDb = await this.sentenceService.findOne(sentence_id);
         sentenceFromDb.audio = languagename + '/sample/' + file.originalname;
+
+        console.log('================================================')
+        console.log("sentencefromDb.audio :>>", sentenceFromDb.audio)
+        console.log('================================================')
+
         await this.sentenceService.update(sentence_id, sentenceFromDb);
       } catch (error) {
         throw new HttpException(error, error.status)
