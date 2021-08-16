@@ -181,7 +181,14 @@ export class SentenceController {
 
     //check if folder for the speaker exists, if not create and move file to that folder
     try {
-      await this.createNewFolder(languagename, username, sample)
+
+      console.log('================================================')
+      console.log("before create foler")
+      console.log("languagename :>>", languagename)
+      console.log('================================================')
+
+      const ddd = await this.createNewFolder(languagename, username, sample)
+      console.log(`ddd`, ddd)
     } catch (error) { console.log("error in creating folder :>>", error); return this.sharedService.handleError(error) }
     //upload file and move to speaker's folder
 
@@ -203,6 +210,7 @@ export class SentenceController {
       throw new HttpException(error, error.status)
     }
 
+    console.log("adding to DB ")
     // add to DB
     if (sample) {
       try {
@@ -266,9 +274,19 @@ export class SentenceController {
       const direxists = await fs.existsSync(dir)
       console.log(`direxists`, direxists)
       if (!direxists) {
-        await fs.mkdirSync(dir, { recursive: true });
+        const d = await fs.mkdirSync(dir, { recursive: true });
+
+        console.log('================================================')
+        console.log("d :>>", d)
+        console.log('================================================')
+
       }
     } catch (error) {
+
+      console.log('================================================')
+      console.log("error in createdirsync :>>", error)
+      console.log('================================================')
+
       throw new HttpException(error, error.status)
     }
 
