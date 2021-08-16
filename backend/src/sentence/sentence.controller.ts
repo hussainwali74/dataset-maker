@@ -53,6 +53,10 @@ export class SentenceController {
     try {
       data = await this.sentenceService.findOne(+id);
 
+      console.log('================================================')
+      console.log("data findone by id :>>", data)
+      console.log('================================================')
+
     } catch (error) {
       return this.sharedService.handleError(error)
     }
@@ -132,6 +136,11 @@ export class SentenceController {
   )
   async uploadSampleFiles(@UploadedFile() file) {
     try {
+
+      console.log('================================================')
+      console.log("file audio :>>", file)
+      console.log('================================================')
+
       const result = await this.handFileUploadAndDb(file, true)
       return this.sharedService.handleSuccess(result)
     } catch (error) {
@@ -199,6 +208,11 @@ export class SentenceController {
       try {
         let sentenceFromDb = await this.sentenceService.findOne(sentence_id);
         sentenceFromDb.audio = languagename + '/sample/' + file.originalname;
+
+        console.log('================================================')
+        console.log("sentencefromDb.audio :>>", sentenceFromDb.audio)
+        console.log('================================================')
+
         await this.sentenceService.update(sentence_id, sentenceFromDb);
       } catch (error) {
         throw new HttpException(error, error.status)
@@ -247,9 +261,10 @@ export class SentenceController {
     } else {
       dir = 'uploads/' + language + '/sample'
     }
-
+    console.log(`dir in createNewFolder`, dir)
     try {
       const direxists = await fs.existsSync(dir)
+      console.log(`direxists`, direxists)
       if (!direxists) {
         await fs.mkdirSync(dir, { recursive: true });
       }
