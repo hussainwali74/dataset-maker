@@ -50,7 +50,9 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 		if (!recording) {
 			clearBlobUrl()
 			startRecording()
+			console.log("startRecording()")
 		} else {
+			console.log("stopRecording()")
 			stopRecording()
 		}
 	}
