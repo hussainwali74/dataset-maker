@@ -35,6 +35,7 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 				upload_url = "sentence/upload_audio"
 			}
 
+			console.log(`upload_url`, upload_url)
 			axios
 				.post(upload_url, formData)
 				.then((d) => console.log("after post blob :>>", d))
