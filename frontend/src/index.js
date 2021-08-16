@@ -11,7 +11,7 @@ import { getToken, TOKEN } from "./helpers/auth"
 // server
 axios.defaults.baseURL = "http://roomie.pk:5000/"
 // local
-// axios.defaults.baseURL = 'http://localhost:5000/loadex/'
+// axios.defaults.baseURL = 'http://localhost:5000/'
 
 axios.defaults.headers.common["Authorization"] = "Bearer " + localStorage.getItem(TOKEN)
 axios.defaults.headers.post["Content-Type"] = "application/json"

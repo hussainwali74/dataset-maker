@@ -14,7 +14,7 @@ const SentenceUploadPage = () => {
 		fileData.append("file", file)
 		try {
 			// 1 is language_id => here=>Burushaski
-			const { data } = await axios.post("http://localhost:5000/sentence/upload_csv/1", fileData)
+			const { data } = await axios.post("sentence/upload_csv/1", fileData)
 
 			console.log("-------------------------------------------------------")
 			console.log("data :>>", data)

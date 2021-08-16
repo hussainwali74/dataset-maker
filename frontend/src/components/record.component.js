@@ -5,7 +5,6 @@ import { BsThreeDots } from "react-icons/bs"
 // const axios = require(axios)
 
 const Record = ({ sample, sentence, language_id, language_name }) => {
-	const [baseUrl, setBaseUrl] = useState("http://localhost:5000/")
 	const [recording, setRecording] = useState(false)
 	const { id, name } = JSON.parse(localStorage.getItem("user"))
 
@@ -31,9 +30,9 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 
 			let upload_url
 			if (sample) {
-				upload_url = baseUrl + "sentence/upload_audio_sample"
+				upload_url = "sentence/upload_audio_sample"
 			} else {
-				upload_url = baseUrl + "sentence/upload_audio"
+				upload_url = "sentence/upload_audio"
 			}
 
 			axios

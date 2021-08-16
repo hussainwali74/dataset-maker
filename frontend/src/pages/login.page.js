@@ -10,7 +10,7 @@ const LoginPage = () => {
 	const onHandleSubmit = async (e) => {
 		e.preventDefault()
 		try {
-			const { data } = await axios.post("http://localhost:5000/auth/login", form)
+			const { data } = await axios.post("auth/login", form)
 
 			console.log("-------------------------------------------------------")
 			console.log("dataaaa :>>", data)

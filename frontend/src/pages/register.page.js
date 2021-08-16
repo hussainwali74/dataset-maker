@@ -21,7 +21,7 @@ const RegisterPage = () => {
 				onSubmit={(values, { setSubmitting }) => {
 					setTimeout(async () => {
 						const { data } = await axios
-							.post("http://localhost:5000/auth/register", values)
+							.post("auth/register", values)
 							.catch((e) => console.log("error in post blob :>>", e))
 
 						if (data.status) {

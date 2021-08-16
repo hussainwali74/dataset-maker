@@ -7,7 +7,7 @@ const Sentence = () => {
 	const [languages, setLanguages] = useState([])
 	const [selectedLanguageId, setSelectedLanguageId] = useState()
 	const [selectedLanguageName, setSelectedLanguageName] = useState()
-	const [baseUrl, setBaseUrl] = useState("http://localhost:5000/")
+	const [baseUrl, setBaseUrl] = useState("")
 
 	const [sentences, setSentences] = useState([])
 
@@ -79,10 +79,7 @@ const Sentence = () => {
 									<div className="pt-2 border-t-2 audio-buttons">
 										<div className="flex items-center justify-around px-2 ">
 											<audio controls className="w-full ">
-												<source
-													src={"http://localhost:5000/" + sentence.audio}
-													type="audio/ogg"
-												/>
+												<source src={"" + sentence.audio} type="audio/ogg" />
 												<source src="horse.mp3" type="audio/mpeg" />
 												Your browser does not support the audio element.
 											</audio>
