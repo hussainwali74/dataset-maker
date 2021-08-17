@@ -2,15 +2,65 @@ import axios from "axios"
 import React, { useState } from "react"
 import { useReactMediaRecorder } from "react-media-recorder"
 import { BsThreeDots } from "react-icons/bs"
-import { ReactMic } from "react-mic"
 // const axios = require(axios)
 
 const Record = ({ sample, sentence, language_id, language_name }) => {
 	const [recording, setRecording] = useState(false)
 	const { id, name } = JSON.parse(localStorage.getItem("user"))
+	if (sentence.recordedAudio) {
+		console.log("-------------------------------------------------------")
+		console.log("sentence.recordedAudio :>>", sentence.recordedAudio)
+		console.log("-------------------------------------------------------")
+	}
+	const { status, startRecording, stopRecording, error, mediaBlobUrl, clearBlobUrl } =
+		useReactMediaRecorder(
+			{
+				audio: true,
+				type: "audio/wav",
+				onStop: (blobUrl, blob) => {
+					console.log("onStop recording")
+					const url = URL.createObjectURL(blob)
+					let formData = new FormData()
+
+					//person_name-person_id-language_id-sentence.id-date
+					const today = new Date()
+					// const file_name = `${id}-${language_id}-${sentence.id}-${today.toISOString()}.wav`
+					const file_name = `${name}-${id}-${language_id}-${
+						sentence.id
+					}-${today.toDateString()}-${language_name}.wav`
+
+					console.log("-------------------------------------------------------")
+					console.log("file_name :>>", file_name)
+					console.log("-------------------------------------------------------")
+
+					formData.append("file", blob, file_name)
+
+					let upload_url
+					if (sample) {
+						upload_url = "sentence/upload_audio_sample"
+					} else {
+						upload_url = "sentence/upload_audio"
+					}
+
+					console.log(`upload_url`, upload_url)
+					axios
+						.post(upload_url, formData)
+						.then((d) => console.log("after post blob :>>", d))
+						.catch((e) => console.log("error in post blob :>>", e))
+				},
+			},
+			(error) => console.log("shsdsd", error)
+		)
 
 	const handleStartRecording = () => {
 		setRecording(!recording)
+		if (!recording) {
+			clearBlobUrl()
+			startRecording()
+		} else {
+			stopRecording()
+			console.log("mediaBlobUrl :>>", mediaBlobUrl)
+		}
 	}
 
 	const getStartRecordingText = () => {
@@ -20,51 +70,54 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 			return "Start Recording"
 		}
 	}
-	const handleOnStop = (recordedBlob) => {
-		console.log(`recordedBlob`, recordedBlob)
-	}
-	const handleOnData = (recordedBlob) => {
-		console.log(`recordedBlob onData`, recordedBlob)
-	}
-
-	const handleOnBlock = (recordedBlob) => {
-		console.log(`recordedBlob onBlock`, recordedBlob)
-	}
 
 	return (
 		<div>
 			<div className="flex flex-col items-center justify-center w-full p-2 space-y-2 bg-white border-t-2 md:space-y-0 xl:flex-row audio-buttons ">
-				<ReactMic
-					record={recording} // defaults -> false.  Set to true to begin recording
-					pause={false} // defaults -> false (available in React-Mic-Gold)
-					visualSetting="sinewave" // defaults -> "sinewave".  Other option is "frequencyBars"
-					className={"w-full"} // provide css class name
-					onStop={handleOnStop} // required - called when audio stops recording
-					onData={handleOnData} // optional - called when chunk of audio data is available
-					onBlock={handleOnBlock} // optional - called if user selected "block" when prompted to allow microphone access (available in React-Mic-Gold)
-					strokeColor={"orange"} // sinewave or frequency bar color
-					backgroundColor={"grey"} // background color
-					mimeType="audio/webm" // defaults -> "audio/webm".  Set to "audio/wav" for WAV or "audio/mp3" for MP3 audio format (available in React-Mic-Gold)
-					echoCancellation={true} // defaults -> false
-					autoGainControl={false} // defaults -> false
-					noiseSuppression={false} // defaults -> false
-					channelCount={2} // defaults -> 2 (stereo).  Specify 1 for mono.
-					bitRate={256000} // defaults -> 128000 (128kbps).  React-Mic-Gold only.
-					sampleRate={96000} // defaults -> 44100 (44.1 kHz).  It accepts values only in range: 22050 to 96000 (available in React-Mic-Gold)
-					timeSlice={3000} // defaults -> 4000 milliseconds.  The interval at which captured audio is returned to onData callback (available in React-Mic-Gold).
-				/>
+				{status}
+				{!mediaBlobUrl && recording && (
+					<p className="pr-2 text-sm text-gray-600 ">
+						<BsThreeDots className="w-8 h-8 text-yellow-500 transition-colors:{'bg-yellow-400'} animate-ping" />
+					</p>
+				)}
 
-				<button
-					className={`w-full px-5 py-2  xl:w-1/4  text-sm font-medium tracking-wider text-white transition duration-200 ease-in ${
-						recording
-							? "bg-red-400 border-red-300 hover:bg-red-500 hover:shadow-lg hover:border-red-500"
-							: `bg-green-400  border-green-300 hover:bg-green-500 hover:shadow-lg hover:border-green-500 
-						${"xl:w-full "} `
-					}   border-2 rounded-full shadow-sm flex-no-shrink `}
-					onClick={() => handleStartRecording()}
-				>
-					{recording ? "Stop Recording" : "Start Record "}
-				</button>
+				{mediaBlobUrl && (
+					<audio controls className="w-full h-10 bg-white xl:w-3/4">
+						<source src={mediaBlobUrl} className="bg-white" type="audio/ogg" />
+						<source src={mediaBlobUrl} className="bg-white" type="audio/mpeg" />
+						Your browser does not support the audio element.
+					</audio>
+				)}
+
+				{!sentence.audio && sample ? (
+					<button
+						className={`w-full px-5 py-2  xl:w-1/4  text-sm font-medium tracking-wider text-white transition duration-200 ease-in ${
+							recording
+								? "bg-red-400 border-red-300 hover:bg-red-500 hover:shadow-lg hover:border-red-500"
+								: `bg-green-400  border-green-300 hover:bg-green-500 hover:shadow-lg hover:border-green-500 
+						${!mediaBlobUrl && "xl:w-full "} `
+						}   border-2 rounded-full shadow-sm flex-no-shrink `}
+						onClick={() => handleStartRecording(startRecording, stopRecording)}
+					>
+						{recording ? "Stop Recording" : "Start Record Sample "}
+					</button>
+				) : (
+					<button
+						className={`w-full px-5 py-2  xl:w-1/4  text-sm font-medium tracking-wider text-white transition duration-200 ease-in ${
+							recording
+								? "bg-red-400 border-red-300 hover:bg-red-500 hover:shadow-lg hover:border-red-500"
+								: `bg-green-400  border-green-300 hover:bg-green-500 hover:shadow-lg hover:border-green-500 
+						${!mediaBlobUrl && "xl:w-full "} `
+						}   border-2 rounded-full shadow-sm flex-no-shrink `}
+						onClick={() => handleStartRecording(startRecording, stopRecording)}
+					>
+						{recording
+							? "Stop Recording"
+							: mediaBlobUrl
+							? "Record Again"
+							: getStartRecordingText()}
+					</button>
+				)}
 			</div>
 		</div>
 	)

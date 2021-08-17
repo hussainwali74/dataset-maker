@@ -63,50 +63,54 @@ const Sentence = () => {
 			</div>
 			{/* ------------------------------------------------------ */}
 			<div className="p-0 md:p-10">
-				{sentences.length &&
-					sentences.map((sentence, index) => (
-						<div
-							key={index}
-							className="w-full h-full p-2 text-gray-700 rounded-sm shadow-sm md:p-4 "
-						>
-							<div className="p-4 mb-0 bg-gray-100 border-2 rounded-md sentence">
-								<div className="pb-2 text" title={sentence.english_meaning}>
-									{sentence.sentence}
-								</div>
-								{sentence.audio ? (
-									<div className="pt-2 border-t-2 audio-buttons">
-										<div className="flex items-center justify-around px-2 ">
-											<audio controls className="w-full ">
-												{/* <source src={"http://localhost:5000/" + sentence.audio} type="audio/ogg" /> */}
-												<source
+				{sentences?.length
+					? sentences.map((sentence, index) => (
+							<div
+								key={index}
+								className="w-full h-full p-2 text-gray-700 rounded-sm shadow-sm md:p-4 "
+							>
+								<div className="p-4 mb-0 bg-gray-100 border-2 rounded-md sentence">
+									<div className="pb-2 text" title={sentence.english_meaning}>
+										{sentence.sentence}
+									</div>
+									{sentence.audio ? (
+										<div className="pt-2 border-t-2 audio-buttons">
+											<div className="flex items-center justify-around px-2 ">
+												<audio controls className="w-full ">
+													<source
+														src={"http://localhost:5000/" + sentence.audio}
+														type="audio/ogg"
+													/>
+													{/* <source
 													src={"http://roomie.pk:5000/" + sentence.audio}
 													type="audio/ogg"
-												/>
-												<source src="horse.mp3" type="audio/mpeg" />
-												Your browser does not support the audio element.
-											</audio>
+												/> */}
+													<source src="horse.mp3" type="audio/mpeg" />
+													Your browser does not support the audio element.
+												</audio>
+											</div>
 										</div>
-									</div>
-								) : (
+									) : (
+										<div className="record ">
+											<Record
+												sample={true}
+												sentence={sentence}
+												language_id={selectedLanguageId}
+												language_name={selectedLanguageName}
+											/>
+										</div>
+									)}
 									<div className="record ">
 										<Record
-											sample={true}
 											sentence={sentence}
 											language_id={selectedLanguageId}
 											language_name={selectedLanguageName}
 										/>
 									</div>
-								)}
-								<div className="record ">
-									<Record
-										sentence={sentence}
-										language_id={selectedLanguageId}
-										language_name={selectedLanguageName}
-									/>
 								</div>
 							</div>
-						</div>
-					))}
+					  ))
+					: "now sentences available"}
 			</div>
 		</Wrapper>
 	)
