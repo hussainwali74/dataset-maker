@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { UserEntity } from "src/users/entities/user.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { SentenceEntity } from "./sentence.entity";
 
 @Entity('sentencetospeaker')
@@ -14,11 +14,13 @@ export class SentenceToSpeakerEntity {
     audio_url: string
 
     @ApiProperty()
-    @ManyToOne(() => SentenceEntity, sentence => sentence.sentenceToSpeaker)
-    sentence: SentenceEntity;
+    @ManyToOne(() => SentenceEntity, sentence => sentence.sentenceToSpeaker,)
+    @JoinColumn({ name: 'sentence_id', referencedColumnName: 'id' })
+    sentence!: SentenceEntity | number;
 
     @ApiProperty()
-    @ManyToOne(() => UserEntity, speaker => speaker.sentenceToSpeaker)
-    speaker: UserEntity;
+    @ManyToOne(() => UserEntity, speaker => speaker.sentenceToSpeaker,)
+    @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
+    speaker!: UserEntity | number;
 
 }

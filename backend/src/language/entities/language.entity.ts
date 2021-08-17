@@ -25,7 +25,7 @@ export class LanguageEntity extends SharedEntity {
     @OneToMany(() => WordEntity, (word) => word.language)
     words: WordEntity[];
 
-    @OneToMany(() => SentenceEntity, (sentence) => sentence.language)
+    @OneToMany(() => SentenceEntity, (sentence) => sentence.language, { cascade: ['insert', 'update'], onDelete: 'CASCADE' })
     sentences: SentenceEntity[];
 
 }

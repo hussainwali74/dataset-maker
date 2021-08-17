@@ -29,7 +29,7 @@ export class UserEntity extends SharedEntity {
     role: string;
 
     //speaker
-    @OneToMany(() => SentenceToSpeakerEntity, sentenceToSpeaker => sentenceToSpeaker.speaker, { cascade: true })
+    @OneToMany(() => SentenceToSpeakerEntity, sentenceToSpeaker => sentenceToSpeaker.speaker, { cascade: ['insert', 'update'], onDelete: 'CASCADE' })
     sentenceToSpeaker: SentenceToSpeakerEntity[]
 
     @ManyToMany(() => LanguageEntity)

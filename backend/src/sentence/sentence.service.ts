@@ -1,11 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, IsNull, Repository } from 'typeorm';
+import { Not, IsNull, Repository, Connection } from 'typeorm';
 import { SentenceEntity } from './entities/sentence.entity';
 
 @Injectable()
 export class SentenceService {
   constructor(
+    private connection: Connection,
     @InjectRepository(SentenceEntity)
     private sentenceRespository: Repository<SentenceEntity>
   ) { }
@@ -19,6 +20,36 @@ export class SentenceService {
     }
 
   }
+
+  async findAByConditionWithRelationsOfUser(condition, relations, speaker_id) {
+
+    try {
+
+      let data: SentenceEntity[] = await this.sentenceRespository.find({ where: condition, relations: relations });
+
+      data = data.map(sentence => {
+        for (let i = 0; i < sentence.sentenceToSpeaker?.length; i++) {
+          let element = sentence.sentenceToSpeaker[i];
+          const splitelement = element.audio_url.split('-');
+          //person_name-person_id-language_id-sentence_id-date-language_name
+          element['sentence'] = +splitelement[3];
+          element['speaker'] = +splitelement[1];
+
+          if (element.speaker == speaker_id) {
+            sentence['recordedAudio'] = element
+          };
+        }
+        delete sentence.sentenceToSpeaker;
+        return sentence;
+      })
+
+      return data;
+    } catch (error) {
+      throw new HttpException(error, error.status)
+    }
+
+  }
+
   async findAByConditionWithRelations(condition, relations) {
 
     try {
@@ -73,7 +104,7 @@ export class SentenceService {
   async createMany(sentences: SentenceEntity[]) {
 
     console.log(`sentences.length`, sentences.length)
-    let findalSentences = [];
+    let finalSentences = [];
     for (let i = 0; i < sentences.length; i++) {
       const element = sentences[i].sentence;
 
@@ -98,23 +129,23 @@ export class SentenceService {
         console.log("data not  :>>", sentences[i])
         console.log('================================================')
 
-        findalSentences.push(sentences[i])
+        finalSentences.push(sentences[i])
       }
     }
 
-    console.log(`final Sentences.length`, findalSentences.length)
+    console.log(`final Sentences.length`, finalSentences.length)
 
     try {
-      if (findalSentences.length) {
+      if (finalSentences.length) {
 
 
         console.log('================================================')
         console.log('CREATINGSENTENCES')
-        console.log(`findalSenteces.length`, findalSentences.length)
+        console.log(`findalSenteces.length`, finalSentences.length)
         console.log('================================================')
 
-        const data = await this.sentenceRespository.create(findalSentences)
-        return await this.sentenceRespository.save(data);
+        // const data = await this.sentenceRespository.create(finalSentences)
+        return await this.sentenceRespository.save(finalSentences);
       } return "all sentences already added"
     } catch (error) {
       throw new HttpException(error, error.status)

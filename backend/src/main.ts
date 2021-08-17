@@ -6,6 +6,8 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import * as fs from 'fs';
 
 async function bootstrap() {
+  // how to generate private keys for https:
+  // https://www.youtube.com/watch?v=USrMdBF0zcg
   const httpsOptions = {
     key: fs.readFileSync('./secrets/key.pem'),
     cert: fs.readFileSync('./secrets/cert.pem')

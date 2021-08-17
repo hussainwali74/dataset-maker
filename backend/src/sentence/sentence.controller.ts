@@ -15,12 +15,10 @@ import { unlink } from 'fs/promises';
 import { SharedService } from 'src/shared/shared.service';
 import { SentenceToSpeakerEntity } from './entities/sentencetospeaker.entity';
 import { SentenceToSpeakerService } from './sentencetospeacker.service';
-import { Role } from 'src/auth/models/role.enum';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 
+@UseGuards(JwtGuard)
 @ApiUnauthorizedResponse({ description: 'please provide a valid token' })
 @ApiBearerAuth('token')
 @ApiTags('Sentences')
@@ -49,6 +47,7 @@ export class SentenceController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
+
     let data;
     try {
       data = await this.sentenceService.findOne(+id);
@@ -60,35 +59,34 @@ export class SentenceController {
     } catch (error) {
       return this.sharedService.handleError(error)
     }
+
     return this.sharedService.handleSuccess(data)
   }
 
   @Get('language/:id')
   async getSentenceByLanguageId(@Param('id') id: number) {
     let data;
+
     try {
       data = await this.sentenceService.findAByConditionWithRelations({ language: +id }, ['sentenceToSpeaker']);
 
     } catch (error) {
       return this.sharedService.handleError(error)
     }
+
     return this.sharedService.handleSuccess(data)
   }
 
   @Get('sample/language/:id')
-  async getSampleSentencesByLanguageId(@Param('id') id: number) {
+  async getSampleSentencesByLanguageId(@Param('id') id: number, @GetUser() user) {
 
     console.log('================================================')
-    console.log("id :>>", id)
+    console.log("user :>>", user)
     console.log('================================================')
 
     let data;
     try {
-      data = await this.sentenceService.findAByConditionWithRelations({ language: +id, sample: true }, ['sentenceToSpeaker']);
-
-      console.log('================================================')
-      console.log("data :>>", data)
-      console.log('================================================')
+      data = await this.sentenceService.findAByConditionWithRelationsOfUser({ language: +id, sample: true }, ['sentenceToSpeaker'], user.id);
 
     } catch (error) {
       return this.sharedService.handleError(error)
@@ -178,9 +176,6 @@ export class SentenceController {
       console.log("filename undefined:>>", filename)
       filename = filepath.split('/')[1]
     }
-    console.log('================================================')
-    console.log("filename :>>", filename)
-    console.log('================================================')
 
     //person_name-person_id-language_id-sentence_id-date-language_name
     const filename_split = filename.split('-');
@@ -191,13 +186,8 @@ export class SentenceController {
     //check if folder for the speaker exists, if not create and move file to that folder
     try {
 
-      console.log('================================================')
-      console.log("before create foler")
-      console.log("languagename :>>", languagename)
-      console.log('================================================')
 
       const ddd = await this.createNewFolder(languagename, username, sample)
-      console.log(`ddd`, ddd)
     } catch (error) { console.log("error in creating folder :>>", error); return this.sharedService.handleError(error) }
     //upload file and move to speaker's folder
 
@@ -225,12 +215,6 @@ export class SentenceController {
       try {
         let sentenceFromDb = await this.sentenceService.findOne(sentence_id);
         sentenceFromDb.audio = languagename + '/sample/' + file.originalname;
-
-
-        console.log('================================================')
-        console.log("sentencefromDb.audio :>>", sentenceFromDb.audio)
-        console.log('================================================')
-
         await this.sentenceService.update(sentence_id, sentenceFromDb);
       } catch (error) {
         throw new HttpException(error, error.status)
@@ -251,16 +235,17 @@ export class SentenceController {
         sentenceToSpeaker = new SentenceToSpeakerEntity()
       }
       sentenceToSpeaker.audio_url = file.originalname;
-      sentenceToSpeaker.sentence = filename_split[3];
-      sentenceToSpeaker.speaker = filename_split[1];
+      sentenceToSpeaker.sentence = +filename_split[3];
+      sentenceToSpeaker.speaker = +filename_split[1];
 
       // save middletable data
       try {
         let result;
         if (!update) {
-          console.log("creating")
+          console.log("creating sentencetospeacker", sentenceToSpeaker)
           result = await this.sentenceToSpeakerService.create(sentenceToSpeaker);
         } else {
+          console.log("update sentencetospeacker", sentenceToSpeaker)
           result = await this.sentenceToSpeakerService.update(sentenceToSpeaker.id, sentenceToSpeaker);
         }
         return result
