@@ -13,6 +13,11 @@ const Sentence = () => {
 		async function getLanguages() {
 			const { data } = await axios.get("language")
 			setLanguages(data)
+
+			console.log("-------------------------------------------------------")
+			console.log("data :>>", data)
+			console.log("-------------------------------------------------------")
+
 			// ONLY BURUSHASKI NOW
 			setSelectedLanguageId(data[0].id)
 			setSelectedLanguageName(data[0].name)
@@ -39,7 +44,8 @@ const Sentence = () => {
 		setSentences(data.data)
 	}
 
-	let url = "https://audio-previews.elements.envatousercontent.com/files/142778859/preview.mp3"
+	const REACT_APP_HOST = process.env["REACT_APP_HOST"] || "http://localhost:5000/"
+
 	return (
 		<Wrapper>
 			{/* ------------------------------------------------------ */}
@@ -78,13 +84,9 @@ const Sentence = () => {
 											<div className="flex items-center justify-around px-2 ">
 												<audio controls className="w-full ">
 													<source
-														src={"http://localhost:5000/" + sentence.audio}
+														src={REACT_APP_HOST + sentence.audio}
 														type="audio/ogg"
 													/>
-													{/* <source
-													src={"http://roomie.pk:5000/" + sentence.audio}
-													type="audio/ogg"
-												/> */}
 													<source src="horse.mp3" type="audio/mpeg" />
 													Your browser does not support the audio element.
 												</audio>

@@ -115,20 +115,11 @@ export class SentenceService {
           try {
             await this.update(data.id, { sample: true })
           } catch (error) {
-
-            console.log('================================================')
-            console.log("error in  updating  :>>" + data.id, error)
-            console.log('================================================')
-
+            console.log(`error in updating `, error)
           }
         }
       }
       if (!data) {
-
-        console.log('================================================')
-        console.log("data not  :>>", sentences[i])
-        console.log('================================================')
-
         finalSentences.push(sentences[i])
       }
     }
@@ -137,14 +128,6 @@ export class SentenceService {
 
     try {
       if (finalSentences.length) {
-
-
-        console.log('================================================')
-        console.log('CREATINGSENTENCES')
-        console.log(`findalSenteces.length`, finalSentences.length)
-        console.log('================================================')
-
-        // const data = await this.sentenceRespository.create(finalSentences)
         return await this.sentenceRespository.save(finalSentences);
       } return "all sentences already added"
     } catch (error) {

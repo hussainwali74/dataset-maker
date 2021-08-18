@@ -7,6 +7,37 @@ const Navbar = () => {
 		localStorage.removeItem("user")
 		history.push("/login")
 	}
+	const showOnAdmin = () => {
+		const user = JSON.parse(localStorage.getItem("user"))
+		if (user.email == "admin@hussain.com") {
+			return true
+		} else {
+			return false
+		}
+	}
+	const CSV = () => {
+		if (showOnAdmin()) {
+			return (
+				<>
+					<NavLink to={"/sentence-upload"} activeClassName="text-white bg-gray-900 rounded-md">
+						<p className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white">
+							Upload Sentences
+						</p>
+					</NavLink>
+
+					<NavLink
+						to={"/sentence-upload-sample"}
+						activeClassName="text-white bg-gray-900 rounded-md"
+					>
+						<p className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white">
+							Upload Sample Sentences
+						</p>
+					</NavLink>
+				</>
+			)
+		}
+		return ""
+	}
 	return (
 		<div>
 			<nav className="bg-gray-800">
@@ -82,32 +113,7 @@ const Navbar = () => {
 										</p>
 									</NavLink>
 
-									{/* <NavLink
-										to={"/sentence-upload"}
-										activeClassName="text-white bg-gray-900 rounded-md"
-									>
-										<p className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white">
-											Upload Sentences
-										</p>
-									</NavLink>
-
-									<NavLink
-										to={"/sentence-upload-sample"}
-										activeClassName="text-white bg-gray-900 rounded-md"
-									>
-										<p className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white">
-											Upload Sample Sentences
-										</p>
-									</NavLink> */}
-
-									<NavLink
-										to={"/logout"}
-										activeClassName="text-white bg-gray-900 rounded-md"
-									>
-										<p className="px-3 py-2 text-sm font-medium text-gray-300 rounded-md hover:bg-gray-700 hover:text-white">
-											Logout
-										</p>
-									</NavLink>
+									<CSV />
 								</div>
 							</div>
 						</div>

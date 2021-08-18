@@ -9,10 +9,10 @@ import { getToken, TOKEN } from "./helpers/auth"
 // =========================   AXIOS configurations   =====================
 // ========================================================================
 // server
-// axios.defaults.baseURL = "https://roomie.pk:5000/"
+axios.defaults.baseURL = "https://roomie.pk:5000/"
 // axios.defaults.baseURL = "http://roomie.pk:5000/"
 // local
-axios.defaults.baseURL = "https://localhost:5000/"
+// axios.defaults.baseURL = "http://localhost:5000/"
 
 axios.defaults.headers.common["Authorization"] = "Bearer " + localStorage.getItem(TOKEN)
 axios.defaults.headers.post["Content-Type"] = "application/json"

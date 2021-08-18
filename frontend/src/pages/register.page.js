@@ -30,9 +30,6 @@ const RegisterPage = () => {
 							localStorage.setItem("token", token)
 							localStorage.setItem("user", user)
 							history.push("/")
-							console.log("-------------------------------------------------------")
-							console.log("data :>>", data)
-							console.log("-------------------------------------------------------")
 						} else {
 							alert(data.error)
 						}
