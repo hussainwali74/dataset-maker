@@ -31,7 +31,7 @@ export class SentenceEntity extends SharedEntity {
     language?: LanguageEntity;
 
     //one sentence can have many speakers,
-    @OneToMany(() => SentenceToSpeakerEntity, sentenceToSpeaker => sentenceToSpeaker.sentence, { eager: true, cascade: ['insert', 'update'], onDelete: 'CASCADE' })
+    @OneToMany(() => SentenceToSpeakerEntity, sentenceToSpeaker => sentenceToSpeaker.sentence, { eager: true, cascade: ['insert', 'update'] })
     sentenceToSpeaker?: SentenceToSpeakerEntity[]
 
 }

@@ -14,12 +14,12 @@ export class SentenceToSpeakerEntity {
     audio_url: string
 
     @ApiProperty()
-    @ManyToOne(() => SentenceEntity, sentence => sentence.sentenceToSpeaker,)
+    @ManyToOne(() => SentenceEntity, sentence => sentence.sentenceToSpeaker, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'sentence_id', referencedColumnName: 'id' })
     sentence!: SentenceEntity | number;
 
     @ApiProperty()
-    @ManyToOne(() => UserEntity, speaker => speaker.sentenceToSpeaker,)
+    @ManyToOne(() => UserEntity, speaker => speaker.sentenceToSpeaker, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
     speaker!: UserEntity | number;
 
