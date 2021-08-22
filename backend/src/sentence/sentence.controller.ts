@@ -215,20 +215,18 @@ export class SentenceController {
       try {
         let sentenceFromDb = await this.sentenceService.findOne(sentence_id);
         sentenceFromDb.audio = languagename + '/sample/' + file.originalname;
+        delete sentenceFromDb.sentenceToSpeaker;
         await this.sentenceService.update(sentence_id, sentenceFromDb);
       } catch (error) {
         throw new HttpException(error, error.status)
       }
     } else {
-
       let sentenceToSpeaker: SentenceToSpeakerEntity;
       try {
         sentenceToSpeaker = await this.sentenceToSpeakerService.findOneByCondition({ sentence: filename_split[3], speaker: filename_split[1] })
-
       } catch (error) {
         throw new HttpException(error, error.status)
       }
-
       let update = true;
       if (!sentenceToSpeaker) {
         update = false;

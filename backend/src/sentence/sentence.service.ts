@@ -141,6 +141,7 @@ export class SentenceService {
     try {
       return await this.sentenceRespository.update(id, sentence);
     } catch (error) {
+      console.log(`error in update sentence 144`, error)
       throw new HttpException(error, error.status)
     }
 

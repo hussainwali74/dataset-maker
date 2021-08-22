@@ -47,6 +47,7 @@ export class SentenceToSpeakerService {
       const data = await this.sentenceToSpeakerRepository.create(word)
       return await this.sentenceToSpeakerRepository.save(data);
     } catch (error) {
+      console.log(`error in create sentencetospeaker`, error)
       throw new HttpException(error, error.status)
     }
 
@@ -57,6 +58,7 @@ export class SentenceToSpeakerService {
     try {
       return await this.sentenceToSpeakerRepository.update(id, word);
     } catch (error) {
+      console.log(`error in update sentencetospeaker`, error)
       throw new HttpException(error, error.status)
     }
 
