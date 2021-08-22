@@ -77,7 +77,7 @@ const Sentence = () => {
 							>
 								<div className="p-4 mb-0 bg-gray-100 border-2 rounded-md sentence">
 									<div className="pb-2 text" title={sentence.english_meaning}>
-										{sentence.sentence}
+										{sentence.id} - {sentence.sentence}
 									</div>
 									{sentence.audio ? (
 										<div className="pt-2 border-t-2 audio-buttons">

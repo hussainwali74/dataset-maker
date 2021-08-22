@@ -25,11 +25,8 @@ const RegisterPage = () => {
 							.catch((e) => console.log("error in post blob :>>", e))
 
 						if (data.status) {
-							const { token } = data
-							const { user } = data
-							localStorage.setItem("token", token)
-							localStorage.setItem("user", user)
-							history.push("/")
+							alert("user added")
+							console.log(`data on create user`, data)
 						} else {
 							alert(data.error)
 						}

@@ -9,6 +9,7 @@ import { getUserName } from "../helpers/auth"
 const Record = ({ sample, sentence, language_id, language_name }) => {
 	const [recording, setRecording] = useState(false)
 	const { id, name } = JSON.parse(localStorage.getItem("user"))
+	const [loading, setLoading] = useState(false)
 	const { status, startRecording, stopRecording, mediaBlobUrl, clearBlobUrl } = useReactMediaRecorder(
 		{
 			audio: true,
@@ -24,11 +25,7 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 				const file_name = `${name}-${id}-${language_id}-${
 					sentence.id
 				}-${today.toDateString()}-${language_name}.wav`
-
-				console.log("-------------------------------------------------------")
-				console.log("file_name :>>", file_name)
-				console.log("-------------------------------------------------------")
-
+				setLoading(true)
 				formData.append("file", blob, file_name)
 
 				let upload_url
@@ -41,8 +38,15 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 				console.log(`upload_url`, upload_url)
 				axios
 					.post(upload_url, formData)
-					.then((d) => console.log("after post blob :>>", d))
-					.catch((e) => console.log("error in post blob :>>", e))
+					.then((d) => {
+						console.log("after post blob :>>", d)
+						setLoading(false)
+					})
+					.catch((e) => {
+						setLoading(false)
+						alert("error uploading audio")
+						console.log("error in post blob :>>", e)
+					})
 			},
 		},
 		(error) => console.log("shsdsd", error)
@@ -72,7 +76,6 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 	const HOST = REACT_APP_HOST + language_name + "/" + getUserName() + "/"
 
 	if (sentence?.recordedAudio) {
-		console.log("-------------------------------------------------------")
 		console.log("sentence.recordedAudio :>>", sentence.recordedAudio)
 		console.log("-------------------------------------------------------")
 		return (
@@ -103,6 +106,7 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 					sentence={sentence}
 					sample={sample}
 					mediaBlobUrl={mediaBlobUrl}
+					loading={loading}
 					recording={recording}
 					handleStartRecording={handleStartRecording}
 					getStartRecordingText={getStartRecordingText}
@@ -133,6 +137,7 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 				sentence={sentence}
 				sample={sample}
 				mediaBlobUrl={mediaBlobUrl}
+				loading={loading}
 				recording={recording}
 				handleStartRecording={handleStartRecording}
 				getStartRecordingText={getStartRecordingText}
