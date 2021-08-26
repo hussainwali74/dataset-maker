@@ -11,19 +11,10 @@ const LoginPage = () => {
 		e.preventDefault()
 		try {
 			const { data } = await axios.post("auth/login", form)
-
-			console.log("-------------------------------------------------------")
-			console.log("dataaaa :>>", data)
-			console.log("-------------------------------------------------------")
-
+ 
 			if (data.status) {
 				const { token } = data.data
-				const { userfinal } = data.data
-
-				console.log("-------------------------------------------------------")
-				console.log("user :>>", userfinal)
-				console.log("-------------------------------------------------------")
-
+				const { userfinal } = data.data 
 				localStorage.setItem("token", token)
 				localStorage.setItem("user", JSON.stringify(userfinal))
 				history.push("/")
@@ -34,9 +25,7 @@ const LoginPage = () => {
 				alert(data.error)
 			}
 		} catch (error) {
-			console.log("-------------------------------------------------------")
-			console.log("error :>>", error)
-			console.log("-------------------------------------------------------")
+			console.log("error logging in :>>", error)
 		}
 	}
 

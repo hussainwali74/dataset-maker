@@ -14,9 +14,6 @@ const HandleRecordComponent = ({
 }) => {
 	const handleButtonClick = async () => {
 		if (sentence?.recordedAudio?.audio_url || (!recording && mediaBlobUrl)) {
-			console.log("-------------------------------------------------------")
-			console.log("DELETE THIS :>>", sentence)
-			console.log("-------------------------------------------------------")
 			if (sentence?.recordedAudio) {
 				let data
 				try {
@@ -30,32 +27,37 @@ const HandleRecordComponent = ({
 				} catch (error) {
 					alert("error deleting recording")
 
-					console.log("-------------------------------------------------------")
 					console.log("error deleting recording :>>", error)
 					console.log("-------------------------------------------------------")
 				}
-
-				console.log("-------------------------------------------------------")
-				console.log("data after deleting recording :>>", data)
-				console.log("-------------------------------------------------------")
 			}
 		} else {
 			// RECORD
 			handleStartRecording(startRecording, stopRecording)
 		}
 	}
-	const isRecordedUrl = (sentence) => (sentence?.recordedAudio?.audio_url ? true : false)
+	const isRecordedUrl = (sentence) => {
+		if (sentence?.recordedAudio?.audio_url && !sample) {
+			console.log("-------------------------------------------------------")
+			console.log("sentence.recordedAudio.audio_url :>>", sentence.recordedAudio.audio_url)
+			console.log("-------------------------------------------------------")
+
+			return true
+		} else {
+			return false
+		}
+	}
 
 	return (
 		<div>
 			<button
 				disabled={loading}
-				className={`w-full px-5 py-2  xl:w-1/4  text-sm font-medium tracking-wider text-white transition duration-200 ease-in ${
+				className={`w-full px-5  py-1 xl:w-1/4  text-sm font-medium tracking-wider text-white transition duration-200 ease-in ${
 					recording
 						? "bg-red-400 border-red-300 hover:bg-red-500 hover:shadow-lg hover:border-red-500 xl:w-full"
-						: mediaBlobUrl || sentence?.recordedAudio?.audio_url
-						? "bg-red-400 border-red-300 hover:bg-red-500 hover:shadow-lg hover:border-red-500 xl:w-full"
-						: `bg-green-400 xl:w-full border-green-300 hover:bg-green-500 hover:shadow-lg hover:border-green-500 
+						: mediaBlobUrl || isRecordedUrl(sentence)
+						? " bg-red-400 border-red-300 hover:bg-red-500 hover:shadow-lg hover:border-red-500 xl:w-full"
+						: ` bg-green-400 xl:w-full border-green-300 hover:bg-green-500 hover:shadow-lg hover:border-green-500 
 						${!mediaBlobUrl && "xl:w-full "} `
 				}   border-2 rounded-full shadow-sm flex-no-shrink `}
 				onClick={() => handleButtonClick()}
