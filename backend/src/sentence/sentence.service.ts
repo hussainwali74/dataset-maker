@@ -28,11 +28,6 @@ export class SentenceService {
     try {
 
       let data: SentenceEntity[] = await this.sentenceRespository.find({ where: condition, relations: relations });
-
-      console.log('================================================')
-      console.log("data :>>", data)
-      console.log('================================================')
-
       data = data.map(sentence => {
         for (let i = 0; i < sentence.sentenceToSpeaker?.length; i++) {
           let element = sentence.sentenceToSpeaker[i];
