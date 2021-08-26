@@ -2,13 +2,11 @@ import React, { useEffect, useState } from "react"
 import axios from "axios"
 import Record from "../components/record.component"
 import Wrapper from "../components/wrapper.component"
-import { isAdmin } from "../helpers/auth"
 import EditSentenceComponent from "../components/editSentence.component"
 const Sentence = () => {
 	const [languages, setLanguages] = useState([])
 	const [selectedLanguageId, setSelectedLanguageId] = useState()
 	const [selectedLanguageName, setSelectedLanguageName] = useState()
-	const [editing, setEditing] = useState([])
 	const [sentences, setSentences] = useState([])
 
 	useEffect(() => {
@@ -48,10 +46,6 @@ const Sentence = () => {
 		setSentences(data.data)
 	}
 
-	console.log("-------------------------------------------------------")
-	console.log("editing :>>", editing)
-	console.log("-------------------------------------------------------")
-
 	const handleDeleteSample = async (sentence) => {
 		let data
 		try {
@@ -69,13 +63,7 @@ const Sentence = () => {
 			console.log("-------------------------------------------------------")
 		}
 	}
-	const handleEdit = (sentence) => {
-		sentence.editing = !sentence.editing
 
-		console.log("-------------------------------------------------------")
-		console.log("sentence :>>", sentence)
-		console.log("-------------------------------------------------------")
-	}
 	const REACT_APP_HOST = process.env["REACT_APP_HOST"] || "http://localhost:5000/"
 
 	return (
@@ -108,24 +96,9 @@ const Sentence = () => {
 								className="w-full h-full p-2 text-gray-700 rounded-sm shadow-sm md:p-4 "
 							>
 								<div className="p-4 mb-0 bg-gray-100 border-2 rounded-md sentence">
-									{sentence.editing ? (
-										<EditSentenceComponent sentence={sentence} />
-									) : (
-										<div
-											className="flex items-start justify-between pb-2 text"
-											title={sentence.english_meaning}
-										>
-											{sentence.id} - {sentence.sentence}{" "}
-											{isAdmin() && (
-												<button
-													className={`bg-red-400 pt-0 border-red-300 hover:bg-red-500 hover:shadow-lg hover:border-red-500 xl:w-12 p-1 text-white transition duration-200 ease-in  border-2 rounded-full shadow-sm flex-no-shrink `}
-													onClick={() => handleEdit(sentence)}
-												>
-													edit
-												</button>
-											)}
-										</div>
-									)}
+									{/* first line */}
+									<EditSentenceComponent sentence={sentence} />
+
 									{sentence.audio ? (
 										<div className="pt-2 border-t-2 audio-buttons">
 											<div className="flex items-center justify-around px-2 ">

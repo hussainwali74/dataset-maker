@@ -6,7 +6,6 @@ const HandleRecordComponent = ({
 	mediaBlobUrl,
 	recording,
 	handleStartRecording,
-	getStartRecordingText,
 	startRecording,
 	language_name,
 	stopRecording,
@@ -38,10 +37,6 @@ const HandleRecordComponent = ({
 	}
 	const isRecordedUrl = (sentence) => {
 		if (sentence?.recordedAudio?.audio_url && !sample) {
-			console.log("-------------------------------------------------------")
-			console.log("sentence.recordedAudio.audio_url :>>", sentence.recordedAudio.audio_url)
-			console.log("-------------------------------------------------------")
-
 			return true
 		} else {
 			return false

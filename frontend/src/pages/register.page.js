@@ -1,10 +1,9 @@
 import { Formik, Form, Field, ErrorMessage } from "formik"
 import axios from "axios"
-import { Link, useHistory } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useState } from "react"
 
 const RegisterPage = () => {
-	const history = useHistory()
 	const [roles, setRoles] = useState([
 		{ id: "admin", name: "Admin" },
 		{ id: "language_expert", name: "Lanugage Expert" },
