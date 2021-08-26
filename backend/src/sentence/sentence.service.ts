@@ -2,13 +2,15 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, IsNull, Repository, Connection } from 'typeorm';
 import { SentenceEntity } from './entities/sentence.entity';
+import { SentenceToSpeakerService } from './sentencetospeacker.service';
 
 @Injectable()
 export class SentenceService {
   constructor(
     private connection: Connection,
     @InjectRepository(SentenceEntity)
-    private sentenceRespository: Repository<SentenceEntity>
+    private sentenceRespository: Repository<SentenceEntity>,
+    private sentenceToSpeakerService: SentenceToSpeakerService
   ) { }
 
   async findAll() {
@@ -26,7 +28,6 @@ export class SentenceService {
     try {
 
       let data: SentenceEntity[] = await this.sentenceRespository.find({ where: condition, relations: relations });
-
       data = data.map(sentence => {
         for (let i = 0; i < sentence.sentenceToSpeaker?.length; i++) {
           let element = sentence.sentenceToSpeaker[i];
@@ -42,6 +43,7 @@ export class SentenceService {
         delete sentence.sentenceToSpeaker;
         return sentence;
       })
+      data.sort((a, b) => a.id - b.id);
 
       return data;
     } catch (error) {
@@ -142,6 +144,27 @@ export class SentenceService {
       return await this.sentenceRespository.update(id, sentence);
     } catch (error) {
       console.log(`error in update sentence 144`, error)
+      throw new HttpException(error, error.status)
+    }
+
+  }
+
+  async deleteRecordedFileFromMidTable(sentenceToSpeaker_id: number) {
+
+    console.log('================================================')
+    console.log("sentenceToSpeaker_id :>>", sentenceToSpeaker_id)
+    console.log('================================================')
+
+    try {
+      const result = await this.sentenceToSpeakerService.remove(sentenceToSpeaker_id);
+
+      console.log('================================================')
+      console.log("result of removing sentencetospeacker :>>", result)
+      console.log('================================================')
+
+      return result
+    } catch (error) {
+      console.log(`error in deleteRecordedFileFromMidTable 161`, error)
       throw new HttpException(error, error.status)
     }
 

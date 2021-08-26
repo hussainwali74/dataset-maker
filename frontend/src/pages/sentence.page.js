@@ -2,22 +2,17 @@ import React, { useEffect, useState } from "react"
 import axios from "axios"
 import Record from "../components/record.component"
 import Wrapper from "../components/wrapper.component"
+import EditSentenceComponent from "../components/editSentence.component"
 const Sentence = () => {
 	const [languages, setLanguages] = useState([])
 	const [selectedLanguageId, setSelectedLanguageId] = useState()
 	const [selectedLanguageName, setSelectedLanguageName] = useState()
-
 	const [sentences, setSentences] = useState([])
 
 	useEffect(() => {
 		async function getLanguages() {
 			const { data } = await axios.get("language")
 			setLanguages(data)
-
-			console.log("-------------------------------------------------------")
-			console.log("data :>>", data)
-			console.log("-------------------------------------------------------")
-
 			// ONLY BURUSHASKI NOW
 			setSelectedLanguageId(data[0].id)
 			setSelectedLanguageName(data[0].name)
@@ -34,14 +29,39 @@ const Sentence = () => {
 		getSentences(e.target.value)
 	}
 
-	const getSentences = async (id) => {
-		const { data } = await axios.get("sentence/sample/language/" + id)
+	const getSentences = async (id = 1) => {
+		let data
+		try {
+			data = await axios.get("sentence/sample/language/" + id)
+			data = data.data
+		} catch (error) {
+			alert("eror fetching sentences")
 
-		console.log("-------------------------------------------------------")
-		console.log("data :>>", data)
-		console.log("-------------------------------------------------------")
-
+			console.log("error fetching samples :>>", error)
+			console.log("-------------------------------------------------------")
+		}
+		data.data = data.data.map((sentence) => {
+			return { ...sentence, editing: false }
+		})
 		setSentences(data.data)
+	}
+
+	const handleDeleteSample = async (sentence) => {
+		let data
+		try {
+			data = await axios.patch(
+				"sentence/delete_recording/" + selectedLanguageName + "/" + true,
+				sentence
+			)
+			if (data.status) {
+				getSentences()
+			}
+		} catch (error) {
+			alert("error deleting recording")
+
+			console.log("error deleting recording :>>", error)
+			console.log("-------------------------------------------------------")
+		}
 	}
 
 	const REACT_APP_HOST = process.env["REACT_APP_HOST"] || "http://localhost:5000/"
@@ -76,9 +96,9 @@ const Sentence = () => {
 								className="w-full h-full p-2 text-gray-700 rounded-sm shadow-sm md:p-4 "
 							>
 								<div className="p-4 mb-0 bg-gray-100 border-2 rounded-md sentence">
-									<div className="pb-2 text" title={sentence.english_meaning}>
-										{sentence.id} - {sentence.sentence}
-									</div>
+									{/* first line */}
+									<EditSentenceComponent sentence={sentence} />
+
 									{sentence.audio ? (
 										<div className="pt-2 border-t-2 audio-buttons">
 											<div className="flex items-center justify-around px-2 ">
@@ -90,20 +110,31 @@ const Sentence = () => {
 													<source src="horse.mp3" type="audio/mpeg" />
 													Your browser does not support the audio element.
 												</audio>
+
+												<button
+													className={`bg-red-400 border-red-300 hover:bg-red-500 hover:shadow-lg hover:border-red-500 xl:w-1/4 text-white transition duration-200 ease-in  border-2 rounded-full shadow-sm flex-no-shrink `}
+													onClick={() => handleDeleteSample(sentence)}
+												>
+													Delete
+												</button>
 											</div>
 										</div>
 									) : (
 										<div className="record ">
 											<Record
 												sample={true}
+												getSentences={getSentences}
 												sentence={sentence}
 												language_id={selectedLanguageId}
 												language_name={selectedLanguageName}
 											/>
 										</div>
 									)}
+
+									{/* THIRD LINE: SPEAKER RECORD */}
 									<div className="record ">
 										<Record
+											getSentences={getSentences}
 											sentence={sentence}
 											language_id={selectedLanguageId}
 											language_name={selectedLanguageName}
@@ -112,7 +143,7 @@ const Sentence = () => {
 								</div>
 							</div>
 					  ))
-					: "now sentences available"}
+					: "no sentences available"}
 			</div>
 		</Wrapper>
 	)
