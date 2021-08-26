@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Res, HttpException, UseGuards, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Res, HttpException, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { SentenceEntity } from './entities/sentence.entity';
 import { SentenceService } from './sentence.service';
@@ -405,20 +405,9 @@ export class SentenceController {
 
     try {
       if (sample && sentence.audio) {
-
-        console.log('-----------------------------------------------------')
-        console.log("sentence in if :>>", sentence)
-        console.log('-----------------------------------------------------')
-
         const result = await this.sentenceService.update(sentence.id, { audio: null })
         return this.sharedService.handleSuccess(result)
       } else {
-
-        console.log('-----------------------------------------------------')
-        console.log("sample :>>", sample)
-        console.log("sentence.audio :>>", sentence.audio)
-        console.log('-----------------------------------------------------')
-
         const result = await this.sentenceService.deleteRecordedFileFromMidTable(sentence['recordedAudio']['id'])
         return this.sharedService.handleSuccess(result)
       }
@@ -429,7 +418,14 @@ export class SentenceController {
   }
   @Patch(':id')
   async update(@Param('id') id: string, @Body() sentence: SentenceEntity) {
-    return await this.sentenceService.update(+id, sentence);
+
+    try {
+      const data = await this.sentenceService.update(+id, sentence);
+      return this.sharedService.handleSuccess(data)
+    } catch (error) {
+      return this.sharedService.handleError(error)
+    }
+
   }
   // ==================================================================
   //              CSV
