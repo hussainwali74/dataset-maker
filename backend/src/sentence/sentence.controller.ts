@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Res, HttpException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Res, HttpException, UseGuards, Put } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { SentenceEntity } from './entities/sentence.entity';
 import { SentenceService } from './sentence.service';
@@ -52,10 +52,6 @@ export class SentenceController {
     try {
       data = await this.sentenceService.findOne(+id);
 
-      console.log('================================================')
-      console.log("data findone by id :>>", data)
-      console.log('================================================')
-
     } catch (error) {
       return this.sharedService.handleError(error)
     }
@@ -79,11 +75,6 @@ export class SentenceController {
 
   @Get('sample/language/:id')
   async getSampleSentencesByLanguageId(@Param('id') id: number, @GetUser() user) {
-
-    console.log('================================================')
-    console.log("user :>>", user)
-    console.log('================================================')
-
     let data;
     try {
       data = await this.sentenceService.findAByConditionWithRelationsOfUser({ language: +id, sample: true }, ['sentenceToSpeaker'], user.id);
@@ -268,15 +259,9 @@ export class SentenceController {
       console.log(`direxists`, direxists)
       if (!direxists) {
         const d = await fs.mkdirSync(dir, { recursive: true });
-
-        console.log('================================================')
-        console.log("d :>>", d)
-        console.log('================================================')
-
       }
     } catch (error) {
 
-      console.log('================================================')
       console.log("error in createdirsync :>>", error)
       console.log('================================================')
 
@@ -350,20 +335,66 @@ export class SentenceController {
     } catch (error) {
       throw new HttpException(error, error.statusy)
     }
+
+    await this.deleteFile(filepath);
+
+  }
+
+  async deleteFile(filepath) {
     //delete file
     try {
       const data = await unlink(filepath)
       console.log("successfully deleted file ", filepath)
       return data;
     } catch (error) {
+
+      console.log('================================================')
+      console.log("error :>>", error)
+      console.log('================================================')
+
       throw new HttpException(error, error.status)
     }
+  }
 
+  @Patch('/delete_recording/:language_name/:sample')
+  async deleteSentence(
+    @Param('language_name') language_name: string,
+    @Param('sample') sample,
+    @Body() sentence: SentenceEntity,
+    @GetUser() user
+  ) {
+    //delete file and delete entry from intermediate table
+
+
+
+    if (sample === 'true') {
+
+    } else {
+      let resultOfDeleteFile;
+      try {
+
+        const filepath = path.join(__dirname, '../../', '/uploads/' + language_name + '/' + user.name + '/' + sentence['recordedAudio'].audio_url);
+
+
+        resultOfDeleteFile = await this.deleteFile(filepath)
+        // return this.sharedService.handleSuccess(result)
+      } catch (error) {
+        console.log(`error in deletefile 387`, error)
+        // return this.sharedService.handleError(error)
+      }
+      try {
+        const result = await this.sentenceService.deleteRecordedFileFromMidTable(sentence['recordedAudio']['id'])
+        return this.sharedService.handleSuccess(result)
+      } catch (error) {
+        console.log(`error in updateafterdelete 393`, error)
+        return this.sharedService.handleError(error)
+      }
+    }
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() sentence: SentenceEntity) {
-    return this.sentenceService.update(+id, sentence);
+  async update(@Param('id') id: string, @Body() sentence: SentenceEntity) {
+    return await this.sentenceService.update(+id, sentence);
   }
   // ==================================================================
   //              CSV

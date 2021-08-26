@@ -67,7 +67,7 @@ export class SentenceToSpeakerService {
   async remove(id: number) {
 
     try {
-      const data = await this.sentenceToSpeakerRepository.findOne(id)
+      const data = await this.findOne(id)
       return await this.sentenceToSpeakerRepository.remove(data);
 
     } catch (error) {

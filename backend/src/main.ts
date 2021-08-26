@@ -13,9 +13,10 @@ async function bootstrap() {
     cert: fs.readFileSync('./secrets/cert.pem')
 
   }
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    httpsOptions,
-  });
+  // const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+  //   httpsOptions,
+  // });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors();
 
   const config = new DocumentBuilder()
@@ -26,6 +27,7 @@ async function bootstrap() {
     .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'bearer' },
       'token')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
 
   const swaggerOptions = {
