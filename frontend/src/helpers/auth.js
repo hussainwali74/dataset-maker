@@ -5,7 +5,10 @@ export const TOKEN = "token"
 export const storeToken = (userToken) => localStorage.setItem(TOKEN, userToken)
 
 export const getToken = () => "" + localStorage.getItem(TOKEN)
+
 export const getUserName = () => "" + JSON.parse(localStorage.getItem("user")).name
+
+export const isAdmin = () => JSON.parse(localStorage.getItem("user")).role === "admin"
 
 export const authenticated = () => {
 	const token = getToken()

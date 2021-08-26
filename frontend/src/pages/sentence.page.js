@@ -34,11 +34,21 @@ const Sentence = () => {
 		getSentences(e.target.value)
 	}
 
-	const getSentences = async (id) => {
-		const { data } = await axios.get("sentence/sample/language/" + id)
+	const getSentences = async (id = 1) => {
+		let data
+		try {
+			data = await axios.get("sentence/sample/language/" + id)
+			data = data.data
+		} catch (error) {
+			alert("eror fetching sentences")
+
+			console.log("-------------------------------------------------------")
+			console.log("error fetching samples :>>", error)
+			console.log("-------------------------------------------------------")
+		}
 
 		console.log("-------------------------------------------------------")
-		console.log("data :>>", data)
+		console.log("data samples :>>", data)
 		console.log("-------------------------------------------------------")
 
 		setSentences(data.data)
@@ -90,20 +100,30 @@ const Sentence = () => {
 													<source src="horse.mp3" type="audio/mpeg" />
 													Your browser does not support the audio element.
 												</audio>
+
+												<button
+													className={`w-full px-5 py-2  xl:w-1/4  text-sm font-medium tracking-wider text-white transition duration-200 ease-in  border-2 rounded-full shadow-sm flex-no-shrink `}
+												>
+													Start Recording
+												</button>
 											</div>
 										</div>
 									) : (
 										<div className="record ">
 											<Record
 												sample={true}
+												getSentences={getSentences}
 												sentence={sentence}
 												language_id={selectedLanguageId}
 												language_name={selectedLanguageName}
 											/>
 										</div>
 									)}
+
+									{/* THIRD LINE: SPEAKER RECORD */}
 									<div className="record ">
 										<Record
+											getSentences={getSentences}
 											sentence={sentence}
 											language_id={selectedLanguageId}
 											language_name={selectedLanguageName}
@@ -112,7 +132,7 @@ const Sentence = () => {
 								</div>
 							</div>
 					  ))
-					: "now sentences available"}
+					: "no sentences available"}
 			</div>
 		</Wrapper>
 	)

@@ -6,7 +6,8 @@ import HandleRecordComponent from "./handleRecord.component"
 import { getUserName } from "../helpers/auth"
 // const axios = require(axios)
 
-const Record = ({ sample, sentence, language_id, language_name }) => {
+const Record = ({ sample, sentence, getSentences, language_id, language_name }) => {
+	// IF SAMPLE => SECOND LINE
 	const [recording, setRecording] = useState(false)
 	const { id, name } = JSON.parse(localStorage.getItem("user"))
 	const [loading, setLoading] = useState(false)
@@ -75,18 +76,55 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 
 	const HOST = REACT_APP_HOST + language_name + "/" + getUserName() + "/"
 
-	if (sentence?.recordedAudio) {
-		console.log("sentence.recordedAudio :>>", sentence.recordedAudio)
-		console.log("-------------------------------------------------------")
+	if (sample) {
 		return (
 			<div className="flex flex-col items-center justify-center w-full p-2 space-y-2 bg-white border-t-2 md:space-y-0 xl:flex-row audio-buttons ">
-				{!sentence.recordedAudio?.audio_url && recording && (
+				{status || "sample audio, play this if sentence is unclear"}
+				{!mediaBlobUrl && recording && (
+					<div className="px-2">
+						<p className="px-4 pr-2 text-sm text-gray-600 ">
+							<BsThreeDots className="w-8 h-8 text-yellow-500 transition-colors:{'bg-yellow-400'} animate-ping" />
+						</p>
+					</div>
+				)}
+				{mediaBlobUrl && !sentence.audio && (
+					<audio controls className="w-full h-10 bg-white xl:w-3/4">
+						<source src={mediaBlobUrl} className="bg-white" type="audio/ogg" />
+						<source src={mediaBlobUrl} className="bg-white" type="audio/mpeg" />
+						Your browser does not support the audio element.
+					</audio>
+				)}
+				<HandleRecordComponent
+					sentence={sentence}
+					sample={sample}
+					mediaBlobUrl={mediaBlobUrl}
+					loading={loading}
+					getSentences={getSentences}
+					recording={recording}
+					language_name={language_name}
+					handleStartRecording={handleStartRecording}
+					getStartRecordingText={getStartRecordingText}
+					startRecording={startRecording}
+					stopRecording={stopRecording}
+				/>
+			</div>
+		)
+	}
+	// ---------------------------------------------------------------
+	// 				last line
+	// ---------------------------------------------------------------
+	return (
+		<div className="flex flex-col items-center justify-center w-full p-2 space-y-2 bg-white border-t-2 md:space-y-0 xl:flex-row audio-buttons ">
+			{!sentence.recordedAudio?.audio_url && recording && (
+				<div className="px-2">
 					<p className="px-4 pr-2 text-sm text-gray-600 ">
 						<BsThreeDots className="w-8 h-8 text-yellow-500 transition-colors:{'bg-yellow-400'} animate-ping" />
 					</p>
-				)}
-
-				{sentence.recordedAudio?.audio_url && (
+				</div>
+			)}
+			{/* IF USER HAS ALREADY RECORDED AUDIO */}
+			{sentence.recordedAudio?.audio_url && (
+				<>
 					<audio controls className="w-full h-10 bg-white xl:w-3/4">
 						<source
 							src={HOST + sentence.recordedAudio?.audio_url}
@@ -100,45 +138,16 @@ const Record = ({ sample, sentence, language_id, language_name }) => {
 						/>
 						Your browser does not support the audio element.
 					</audio>
-				)}
-
-				<HandleRecordComponent
-					sentence={sentence}
-					sample={sample}
-					mediaBlobUrl={mediaBlobUrl}
-					loading={loading}
-					recording={recording}
-					handleStartRecording={handleStartRecording}
-					getStartRecordingText={getStartRecordingText}
-					startRecording={startRecording}
-					stopRecording={stopRecording}
-				/>
-			</div>
-		)
-	}
-	return (
-		<div className="flex flex-col items-center justify-center w-full p-2 space-y-2 bg-white border-t-2 md:space-y-0 xl:flex-row audio-buttons ">
-			{status || "sample audio, play this if sentence is unclear"}
-			{!mediaBlobUrl && recording && (
-				<p className="px-4 pr-2 text-sm text-gray-600 ">
-					<BsThreeDots className="w-8 h-8 text-yellow-500 transition-colors:{'bg-yellow-400'} animate-ping" />
-				</p>
+				</>
 			)}
-
-			{mediaBlobUrl && (
-				<audio controls className="w-full h-10 bg-white xl:w-3/4">
-					<source src={mediaBlobUrl} className="bg-white" type="audio/ogg" />
-					<source src={mediaBlobUrl} className="bg-white" type="audio/mpeg" />
-					Your browser does not support the audio element.
-				</audio>
-			)}
-
 			<HandleRecordComponent
 				sentence={sentence}
-				sample={sample}
 				mediaBlobUrl={mediaBlobUrl}
 				loading={loading}
+				sample={sample}
+				getSentences={getSentences}
 				recording={recording}
+				language_name={language_name}
 				handleStartRecording={handleStartRecording}
 				getStartRecordingText={getStartRecordingText}
 				startRecording={startRecording}
