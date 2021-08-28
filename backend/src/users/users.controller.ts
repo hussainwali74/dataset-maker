@@ -2,6 +2,7 @@ import { Controller, Get, Body, Patch, Param, Delete, UseGuards } from '@nestjs/
 import { UserService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { SharedService } from 'src/shared/shared.service';
 
 @ApiUnauthorizedResponse({ description: 'please provide a valid token' })
 @ApiBearerAuth('token')
@@ -9,7 +10,8 @@ import { ApiBearerAuth, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UserService) { }
+  constructor(private readonly usersService: UserService,
+    private sharedService: SharedService) { }
 
   @Get()
   findAll() {
@@ -22,12 +24,25 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+
+    try {
+      const data = await this.usersService.update(+id, updateUserDto);
+      return this.sharedService.handleSuccess(data)
+    } catch (error) {
+      return this.sharedService.handleError(error)
+    }
+
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  async remove(@Param('id') id: string) {
+    try {
+      const data = await this.usersService.remove(+id);
+      return this.sharedService.handleSuccess(data)
+
+    } catch (error) {
+      return this.sharedService.handleError(error)
+    }
   }
 }

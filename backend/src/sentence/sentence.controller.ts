@@ -12,6 +12,8 @@ const path = require("path")
 import * as csv from 'fast-csv';
 const fs = require('fs');
 import { unlink } from 'fs/promises';
+import { unlinkSync } from 'fs';
+
 import { SharedService } from 'src/shared/shared.service';
 import { SentenceToSpeakerEntity } from './entities/sentencetospeaker.entity';
 import { SentenceToSpeakerService } from './sentencetospeacker.service';
@@ -343,8 +345,12 @@ export class SentenceController {
   async deleteFile(filepath) {
     //delete file
     try {
-      const data = await unlink(filepath)
-      console.log("successfully deleted file ", filepath)
+      // const data = unlink(filepath).then(data => {
+      //   return data
+      // },
+      //   (error) => { throw error })
+      // console.log("successfully deleted file ", filepath)
+      const data = unlinkSync(filepath)
       return data;
     } catch (error) {
 

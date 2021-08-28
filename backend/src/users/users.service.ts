@@ -64,11 +64,22 @@ export class UserService {
 
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    await this.findOne(id)
+    try {
+      return await this.userRepository.update(id, updateUserDto)
+    } catch (error) {
+      throw new HttpException(error, error.status)
+    }
+
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    const user = await this.findOne(id);
+    try {
+      return await this.userRepository.remove(user)
+    } catch (error) {
+      throw new HttpException(error, error.status)
+    }
   }
 }
