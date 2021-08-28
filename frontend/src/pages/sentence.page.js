@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react"
 import axios from "axios"
 import Record from "../components/record.component"
 import Wrapper from "../components/wrapper.component"
+import EditSentenceComponent from "../components/editSentence.component"
+import { isAdmin } from "../helpers/auth"
 const Sentence = () => {
 	const [languages, setLanguages] = useState([])
 	const [selectedLanguageId, setSelectedLanguageId] = useState()
@@ -54,6 +56,24 @@ const Sentence = () => {
 		setSentences(data.data)
 	}
 
+	const handleDeleteSample = async (sentence) => {
+		let data
+		try {
+			data = await axios.patch(
+				"sentence/delete_recording/" + selectedLanguageName + "/" + true,
+				sentence
+			)
+			if (data.status) {
+				getSentences()
+			}
+		} catch (error) {
+			alert("error deleting recording")
+
+			console.log("error deleting recording :>>", error)
+			console.log("-------------------------------------------------------")
+		}
+	}
+
 	const REACT_APP_HOST = process.env["REACT_APP_HOST"] || "http://localhost:5000/"
 
 	return (
@@ -86,9 +106,8 @@ const Sentence = () => {
 								className="w-full h-full p-2 text-gray-700 rounded-sm shadow-sm md:p-4 "
 							>
 								<div className="p-4 mb-0 bg-gray-100 border-2 rounded-md sentence">
-									<div className="pb-2 text" title={sentence.english_meaning}>
-										{sentence.id} - {sentence.sentence}
-									</div>
+									{/* first line */}
+									<EditSentenceComponent sentence={sentence} />
 									{sentence.audio ? (
 										<div className="pt-2 border-t-2 audio-buttons">
 											<div className="flex items-center justify-around px-2 ">
@@ -100,12 +119,14 @@ const Sentence = () => {
 													<source src="horse.mp3" type="audio/mpeg" />
 													Your browser does not support the audio element.
 												</audio>
-
-												<button
-													className={`w-full px-5 py-2  xl:w-1/4  text-sm font-medium tracking-wider text-white transition duration-200 ease-in  border-2 rounded-full shadow-sm flex-no-shrink `}
-												>
-													Start Recording
-												</button>
+												{isAdmin() && (
+													<button
+														className={`bg-red-400 border-red-300 hover:bg-red-500 hover:shadow-lg hover:border-red-500 xl:w-1/4 text-white transition duration-200 ease-in  border-2 rounded-full shadow-sm flex-no-shrink `}
+														onClick={() => handleDeleteSample(sentence)}
+													>
+														Delete
+													</button>
+												)}
 											</div>
 										</div>
 									) : (

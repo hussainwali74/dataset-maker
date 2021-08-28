@@ -11,11 +11,13 @@ const Record = ({ sample, sentence, getSentences, language_id, language_name }) 
 	const [recording, setRecording] = useState(false)
 	const { id, name } = JSON.parse(localStorage.getItem("user"))
 	const [loading, setLoading] = useState(false)
+
 	const { status, startRecording, stopRecording, mediaBlobUrl, clearBlobUrl } = useReactMediaRecorder(
 		{
 			audio: true,
 			type: "audio/wav",
 			onStop: (blobUrl, blob) => {
+				setLoading(true)
 				console.log("onStop recording")
 				const url = URL.createObjectURL(blob)
 				let formData = new FormData()
@@ -39,14 +41,18 @@ const Record = ({ sample, sentence, getSentences, language_id, language_name }) 
 				console.log(`upload_url`, upload_url)
 				axios
 					.post(upload_url, formData)
-					.then((d) => {
+					.then(async (d) => {
 						console.log("after post blob :>>", d)
+						await getSentences()
+
 						setLoading(false)
+						clearBlobUrl()
 					})
 					.catch((e) => {
 						setLoading(false)
 						alert("error uploading audio")
 						console.log("error in post blob :>>", e)
+						setLoading(false)
 					})
 			},
 		},
@@ -98,7 +104,7 @@ const Record = ({ sample, sentence, getSentences, language_id, language_name }) 
 					sentence={sentence}
 					sample={sample}
 					mediaBlobUrl={mediaBlobUrl}
-					loading={loading}
+					isLoading={loading}
 					getSentences={getSentences}
 					recording={recording}
 					language_name={language_name}
@@ -124,35 +130,49 @@ const Record = ({ sample, sentence, getSentences, language_id, language_name }) 
 			)}
 			{/* IF USER HAS ALREADY RECORDED AUDIO */}
 			{sentence.recordedAudio?.audio_url && (
-				<>
-					<audio controls className="w-full h-10 bg-white xl:w-3/4">
-						<source
-							src={HOST + sentence.recordedAudio?.audio_url}
-							className="bg-white"
-							type="audio/wav"
-						/>
-						<source
-							src={HOST + sentence.recordedAudio?.audio_url}
-							className="bg-white"
-							type="audio/mpeg"
-						/>
-						Your browser does not support the audio element.
-					</audio>
-				</>
+				<audio controls className="w-full h-10 bg-white xl:w-3/4">
+					<source
+						src={HOST + sentence.recordedAudio?.audio_url}
+						className="bg-white"
+						type="audio/wav"
+					/>
+					<source
+						src={HOST + sentence.recordedAudio?.audio_url}
+						className="bg-white"
+						type="audio/mpeg"
+					/>
+					Your browser does not support the audio element.
+				</audio>
 			)}
-			<HandleRecordComponent
-				sentence={sentence}
-				mediaBlobUrl={mediaBlobUrl}
-				loading={loading}
-				sample={sample}
-				getSentences={getSentences}
-				recording={recording}
-				language_name={language_name}
-				handleStartRecording={handleStartRecording}
-				getStartRecordingText={getStartRecordingText}
-				startRecording={startRecording}
-				stopRecording={stopRecording}
-			/>
+			{/* {mediaBlobUrl && !sentence.recordedAudio?.audio_url && (
+				<audio controls className="w-full h-10 bg-white xl:w-3/4">
+					<source src={mediaBlobUrl} className="bg-white" type="audio/ogg" />
+					<source src={mediaBlobUrl} className="bg-white" type="audio/mpeg" />
+					Your browser does not support the audio element.
+				</audio>
+			)} */}
+			{loading ? (
+				<button
+					disabled={true}
+					className={`w-full px-5 py-2  xl:w-1/4  text-sm font-medium tracking-wider text-white  bg-yellow-400 border-yellow-300  pointer-events-none  border-2 rounded-full shadow-sm flex-no-shrink `}
+				>
+					Please Wait...
+				</button>
+			) : (
+				<HandleRecordComponent
+					sentence={sentence}
+					mediaBlobUrl={mediaBlobUrl}
+					isLoading={loading}
+					sample={sample}
+					getSentences={getSentences}
+					recording={recording}
+					language_name={language_name}
+					handleStartRecording={handleStartRecording}
+					getStartRecordingText={getStartRecordingText}
+					startRecording={startRecording}
+					stopRecording={stopRecording}
+				/>
+			)}
 		</div>
 	)
 }
