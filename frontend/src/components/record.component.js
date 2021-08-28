@@ -84,7 +84,7 @@ const Record = ({ sample, sentence, getSentences, language_id, language_name }) 
 
 	if (sample) {
 		return (
-			<div className="flex flex-col items-center justify-center w-full p-2 space-y-2 bg-white border-t-2 md:space-y-0 xl:flex-row audio-buttons ">
+			<div className="flex flex-col items-center justify-center w-full p-2 space-x-2 space-y-2 bg-white border-t-2 md: md:space-y-0 xl:flex-row audio-buttons ">
 				{status || "sample audio, play this if sentence is unclear"}
 				{!mediaBlobUrl && recording && (
 					<div className="px-2">

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Res, HttpException, UseGuards, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Res, HttpException, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { SentenceEntity } from './entities/sentence.entity';
 import { SentenceService } from './sentence.service';
@@ -373,34 +373,65 @@ export class SentenceController {
 
 
 
-    if (sample === 'true') {
+    if (sample === 'true' && sentence.audio) {
+      const filepath = path.join(__dirname, '../../', '/uploads/' + sentence.audio);
 
-    } else {
-      let resultOfDeleteFile;
+      console.log('-----------------------------------------------------')
+      console.log("filepath in sample :>>", filepath)
+      console.log('-----------------------------------------------------')
+
       try {
-
-        const filepath = path.join(__dirname, '../../', '/uploads/' + language_name + '/' + user.name + '/' + sentence['recordedAudio'].audio_url);
-
-
-        resultOfDeleteFile = await this.deleteFile(filepath)
-        // return this.sharedService.handleSuccess(result)
-      } catch (error) {
-        console.log(`error in deletefile 387`, error)
-        // return this.sharedService.handleError(error)
-      }
-      try {
-        const result = await this.sentenceService.deleteRecordedFileFromMidTable(sentence['recordedAudio']['id'])
+        const result = await this.handleDeleteRecording(filepath, sentence, true)
         return this.sharedService.handleSuccess(result)
       } catch (error) {
-        console.log(`error in updateafterdelete 393`, error)
+        return this.sharedService.handleError(error)
+      }
+
+    } else {
+      const filepath = path.join(__dirname, '../../', '/uploads/' + language_name + '/' + user.name + '/' + sentence['recordedAudio'].audio_url);
+      try {
+        const result = await this.handleDeleteRecording(filepath, sentence, false)
+        return this.sharedService.handleSuccess(result)
+      } catch (error) {
         return this.sharedService.handleError(error)
       }
     }
   }
 
+  async handleDeleteRecording(filepath, sentence: SentenceEntity, sample) {
+
+    let resultOfDeleteFile;
+    try {
+      resultOfDeleteFile = await this.deleteFile(filepath)
+      // return this.sharedService.handleSuccess(result)
+    } catch (error) {
+      console.log(`error in deletefile 387`, error)
+      // return this.sharedService.handleError(error)
+    }
+
+    try {
+      if (sample && sentence.audio) {
+        const result = await this.sentenceService.update(sentence.id, { audio: null })
+        return this.sharedService.handleSuccess(result)
+      } else {
+        const result = await this.sentenceService.deleteRecordedFileFromMidTable(sentence['recordedAudio']['id'])
+        return this.sharedService.handleSuccess(result)
+      }
+    } catch (error) {
+      console.log(`error in updateafterdelete sample sentence audio: 406: `, error)
+      throw error;
+    }
+  }
   @Patch(':id')
   async update(@Param('id') id: string, @Body() sentence: SentenceEntity) {
-    return await this.sentenceService.update(+id, sentence);
+
+    try {
+      const data = await this.sentenceService.update(+id, sentence);
+      return this.sharedService.handleSuccess(data)
+    } catch (error) {
+      return this.sharedService.handleError(error)
+    }
+
   }
   // ==================================================================
   //              CSV

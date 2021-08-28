@@ -8,18 +8,12 @@ const Sentence = () => {
 	const [languages, setLanguages] = useState([])
 	const [selectedLanguageId, setSelectedLanguageId] = useState()
 	const [selectedLanguageName, setSelectedLanguageName] = useState()
-
 	const [sentences, setSentences] = useState([])
 
 	useEffect(() => {
 		async function getLanguages() {
 			const { data } = await axios.get("language")
 			setLanguages(data)
-
-			console.log("-------------------------------------------------------")
-			console.log("data :>>", data)
-			console.log("-------------------------------------------------------")
-
 			// ONLY BURUSHASKI NOW
 			setSelectedLanguageId(data[0].id)
 			setSelectedLanguageName(data[0].name)
@@ -44,16 +38,31 @@ const Sentence = () => {
 		} catch (error) {
 			alert("eror fetching sentences")
 
-			console.log("-------------------------------------------------------")
 			console.log("error fetching samples :>>", error)
 			console.log("-------------------------------------------------------")
 		}
-
-		console.log("-------------------------------------------------------")
-		console.log("data samples :>>", data)
-		console.log("-------------------------------------------------------")
-
+		data.data = data.data.map((sentence) => {
+			return { ...sentence, editing: false }
+		})
 		setSentences(data.data)
+	}
+
+	const handleDeleteSample = async (sentence) => {
+		let data
+		try {
+			data = await axios.patch(
+				"sentence/delete_recording/" + selectedLanguageName + "/" + true,
+				sentence
+			)
+			if (data.status) {
+				getSentences()
+			}
+		} catch (error) {
+			alert("error deleting recording")
+
+			console.log("error deleting recording :>>", error)
+			console.log("-------------------------------------------------------")
+		}
 	}
 
 	const handleDeleteSample = async (sentence) => {

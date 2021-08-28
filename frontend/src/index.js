@@ -20,7 +20,7 @@ axios.defaults.headers.post["Content-Type"] = "application/json"
 
 axios.interceptors.request.use(
 	(request) => {
-		console.log("REQUEST INTERCEPTED: ", request)
+		// console.log("REQUEST INTERCEPTED: ", request)
 		// Edit request config
 		request.headers = { Authorization: " Bearer " + getToken() }
 		return request

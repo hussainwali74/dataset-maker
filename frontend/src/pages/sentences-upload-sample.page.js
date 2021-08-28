@@ -1,10 +1,8 @@
 import axios from "axios"
-import { Link, useHistory } from "react-router-dom"
 import { useState } from "react"
 import Wrapper from "../components/wrapper.component"
 
 const SentenceUploadSamplePage = () => {
-	const history = useHistory()
 	const [isSubmitting, setIsSubmitting] = useState(false)
 	const [file, setFile] = useState(null)
 
@@ -14,32 +12,16 @@ const SentenceUploadSamplePage = () => {
 		fileData.append("file", file)
 		try {
 			// 1 is language_id => here=>Burushaski
-			const { data } = await axios.post("sentence/upload_csv_sample/1", fileData)
-
-			console.log("-------------------------------------------------------")
-			console.log("data :>>", data)
-			console.log("-------------------------------------------------------")
-
-			// if (data.status) {
-			// 	const { token } = data.data
-			// 	const { userfinal } = data.data
-			// 	localStorage.setItem("token", token)
-			// 	localStorage.setItem("user", JSON.stringify(userfinal))
-			// 	history.push("/")
-			// } else {
-			// 	alert(data.error)
-			// }
+			setIsSubmitting(true)
+			await axios.post("sentence/upload_csv_sample/1", fileData)
+			setIsSubmitting(false)
 		} catch (error) {
-			console.log("-------------------------------------------------------")
 			console.log("error :>>", error)
 			console.log("-------------------------------------------------------")
 		}
 	}
 
 	const handleChange = (e) => {
-		console.log("-------------------------------------------------------")
-		console.log("e.target.files[0] :>>", e.target.files[0])
-		console.log("-------------------------------------------------------")
 		setFile(e.target.files[0])
 	}
 

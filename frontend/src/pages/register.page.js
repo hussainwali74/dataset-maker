@@ -1,14 +1,18 @@
 import { Formik, Form, Field, ErrorMessage } from "formik"
 import axios from "axios"
-import { Link, useHistory } from "react-router-dom"
+import { Link } from "react-router-dom"
+import { useState } from "react"
 
 const RegisterPage = () => {
-	const history = useHistory()
+	const [roles, setRoles] = useState([
+		{ id: "admin", name: "Admin" },
+		{ id: "language_expert", name: "Lanugage Expert" },
+	])
 	return (
 		<div>
 			<h1>Register!</h1>
 			<Formik
-				initialValues={{ name: "", email: "", password: "" }}
+				initialValues={{ name: "", email: "", password: "", role: "" }}
 				validate={(values) => {
 					const errors = {}
 					if (!values.email) {
@@ -71,6 +75,26 @@ const RegisterPage = () => {
 								className="w-40 px-4 py-0 text-black rounded-full xl:w-full form-input"
 							/>
 							<ErrorMessage name="password" component="div" />
+						</div>
+						<div className="w-full p-0 ">
+							<div className="flex space-x-2 field ">
+								<label htmlFor="Role" className="pt-2 w-28 xl:w-36 text-md">
+									Role
+								</label>
+								<select
+									name="role"
+									defaultValue={1}
+									className="w-full px-3 py-2 bg-white border rounded outline-none"
+								>
+									{/* <option className="py-1">Select Language</option> */}
+									{roles &&
+										roles.map((role) => (
+											<option key={role.id} value={role.id} className="py-1">
+												{role.name}
+											</option>
+										))}
+								</select>
+							</div>
 						</div>
 
 						<div className="w-full pt-2">
