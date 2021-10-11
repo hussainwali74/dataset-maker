@@ -99,7 +99,7 @@ const Sentence = () => {
 									{/* first line */}
 									<EditSentenceComponent sentence={sentence} />
 
-									{sentence.audio ? (
+									{sentence?.audio ? (
 										<div className="pt-2 border-t-2 audio-buttons">
 											<div className="flex items-center justify-around px-2 ">
 												<audio controls className="w-full ">
