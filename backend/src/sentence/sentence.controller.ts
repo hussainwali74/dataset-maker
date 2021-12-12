@@ -1,17 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Res, HttpException, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, Res, HttpException, UseGuards, StreamableFile, Response } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { SentenceEntity } from './entities/sentence.entity';
 import { SentenceService } from './sentence.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { storage, storageCsv } from './storage.config';
-const mv = require('mv');
-const path = require("path")
-// import csv from 'csv-parser';
-
+import { Response as ExpressResponse } from "express";
 
 import * as csv from 'fast-csv';
-const fs = require('fs');
-import { unlink } from 'fs/promises';
 import { unlinkSync } from 'fs';
 
 import { SharedService } from 'src/shared/shared.service';
@@ -19,6 +14,18 @@ import { SentenceToSpeakerEntity } from './entities/sentencetospeaker.entity';
 import { SentenceToSpeakerService } from './sentencetospeacker.service';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { FileUploadDto } from './dto/file-upload.dto';
+import { StreamableFileOptions } from '@nestjs/common/file-stream/streamable-options.interface';
+import { promisify } from 'util';
+import { checkIfFileOrDirectoryExists, createDirAsync } from 'src/storage.helper';
+
+import path from 'path';
+const mv = require('mv');
+// import csv from 'csv-parser';
+const fs = require('fs');
+import { join } from 'path';
+
+
 
 @UseGuards(JwtGuard)
 @ApiUnauthorizedResponse({ description: 'please provide a valid token' })
@@ -47,8 +54,63 @@ export class SentenceController {
     return this.sharedService.handleSuccess(data)
   }
 
+  // ------------------------------------------------------------------------------------
+  //          EXPORT CSV AND AUDIO
+  // ------------------------------------------------------------------------------------
+  /**
+   * 
+   * @param res 
+   * @returns CSV FILE of the sample sentences
+   */
+  @ApiTags('ds_maker')
+  @Get('/exportcsv')
+  async exportSampleSentencesCSV(@Response() res: ExpressResponse) {
+    const data = await this.sentenceService.findAByConditionWithRelations({ language: 1, sample: true }, [], ['id', 'sentence'])
+    return await this.sentenceService.exportDataToCSV(data).then(
+      async (filename) => {
+        await this.sentenceService.getExportedCSV(filename).then((csvData) => {
+          res.set('Content-Type', 'text/csv')
+          return res.send(csvData)
+        })
+      }
+    )
+
+  }
+
+
+  @ApiTags('ds_maker')
+  @Get('/exportaudio')
+  async exportSampleSentencesAudio(@Response() res: ExpressResponse) {
+    const language_id = 1
+    // const data = await this.sentenceService.findAByConditionWithRelations({ language: language_id, sample: true }, ['sentenceToSpeaker']);
+
+    // http://localhost:5000/Burushaski/hussain/aa.wav
+
+    const url = "http://localhost:5000/Burushaski/hussain/aa.wav";
+    const fileExistsCheck = checkIfFileOrDirectoryExists(url)
+
+
+    console.log('-----------------------------------------------------')
+    console.log("fileExistsCheck :>>", fileExistsCheck)
+    console.log('-----------------------------------------------------')
+
+    // res.set('Content-Type', 'audio/wav')
+    // const stream = fs.createReadStream(url).pipe(res)
+    // res.send(stream)
+
+  }
+
+
+  // end export csv and audio ----------------------------------------------------------------------
+
+  /**
+   * 
+   * @param id 
+   * @returns one sentence find by id
+   */
   @Get(':id')
   async findOne(@Param('id') id: string) {
+    console.log(`id`);
 
     let data;
     try {
@@ -61,8 +123,15 @@ export class SentenceController {
     return this.sharedService.handleSuccess(data)
   }
 
+  /**
+   * 
+   * @param id 
+   * @returns list of all sentences by language id, with relation sentenceToSpeaker
+   */
   @Get('language/:id')
   async getSentenceByLanguageId(@Param('id') id: number) {
+    console.log(`langugage/id`);
+
     let data;
 
     try {
@@ -75,11 +144,24 @@ export class SentenceController {
     return this.sharedService.handleSuccess(data)
   }
 
+  /**
+   * 
+   * @param id 
+   * @param user user.id => speaker_id: from jwt 
+   * @returns sample sentences of language by language id 
+   */
   @Get('sample/language/:id')
   async getSampleSentencesByLanguageId(@Param('id') id: number, @GetUser() user) {
+    console.log(`sample/langugage/id`);
     let data;
     try {
-      data = await this.sentenceService.findAByConditionWithRelationsOfUser({ language: +id, sample: true }, ['sentenceToSpeaker'], user.id);
+
+      console.log('-----------------------------------------------------')
+      console.log("user :>>", user)
+      console.log('-----------------------------------------------------')
+
+      data = await this.sentenceService.findAByConditionWithRelationsOfUserTest({ language: +id, sample: true }, ['sentenceToSpeaker'], user.id);
+
 
     } catch (error) {
       return this.sharedService.handleError(error)
@@ -87,6 +169,11 @@ export class SentenceController {
     return this.sharedService.handleSuccess(data)
   }
 
+  /**
+   * 
+   * @param sentence 
+   * @returns sentence search by sentence string
+   */
   @Get('sentence/:sentence')
   async getSentenceBySentence(@Param('sentence') sentence: string) {
     let data;
@@ -103,12 +190,6 @@ export class SentenceController {
   // ==================================================================
   //              AUDIO
   // ==================================================================
-  @Get('track/:audio_path')
-  test(@Param('audio_path') audio_path, @Res() res) {
-    // const imgPath = getImgPath(imgId);
-    const filePath = 'lll';
-    return res.sendFile(filePath, { root: 'public' });
-  }
 
   @Post()
   create(@Body() sentence: SentenceEntity) {
@@ -178,8 +259,6 @@ export class SentenceController {
     console.log(`languagename in handleFileUploadAndDb`, languagename)
     //check if folder for the speaker exists, if not create and move file to that folder
     try {
-
-
       const ddd = await this.createNewFolder(languagename, username, sample)
     } catch (error) { console.log("error in creating folder :>>", error); return this.sharedService.handleError(error) }
     //upload file and move to speaker's folder
@@ -257,11 +336,7 @@ export class SentenceController {
     }
     console.log(`dir in createNewFolder`, dir)
     try {
-      const direxists = await fs.existsSync(dir)
-      console.log(`direxists`, direxists)
-      if (!direxists) {
-        const d = await fs.mkdirSync(dir, { recursive: true });
-      }
+      await createDirAsync(dir)
     } catch (error) {
 
       console.log("error in createdirsync :>>", error)
@@ -302,8 +377,13 @@ export class SentenceController {
 
     })
   )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'csv of sample sentences',
+    type: FileUploadDto,
+  })
+  @ApiOperation({ summary: "upload sample csv for the language language_id" })
   async uploadSampleCSVFiles(@UploadedFile() file, @Param('language_id') language_id: number) {
-
     try {
       const data = await this.handleCSV(file, true, language_id);
       return data;
@@ -311,7 +391,6 @@ export class SentenceController {
       return this.sharedService.handleError(error)
     }
   }
-
 
   async handleCSV(file, sample: boolean, language: number) {
     console.log(`file`, file)
@@ -371,15 +450,8 @@ export class SentenceController {
   ) {
     //delete file and delete entry from intermediate table
 
-
-
     if (sample === 'true' && sentence.audio) {
       const filepath = path.join(__dirname, '../../', '/uploads/' + sentence.audio);
-
-      console.log('-----------------------------------------------------')
-      console.log("filepath in sample :>>", filepath)
-      console.log('-----------------------------------------------------')
-
       try {
         const result = await this.handleDeleteRecording(filepath, sentence, true)
         return this.sharedService.handleSuccess(result)
@@ -399,7 +471,6 @@ export class SentenceController {
   }
 
   async handleDeleteRecording(filepath, sentence: SentenceEntity, sample) {
-
     let resultOfDeleteFile;
     try {
       resultOfDeleteFile = await this.deleteFile(filepath)
@@ -422,6 +493,7 @@ export class SentenceController {
       throw error;
     }
   }
+
   @Patch(':id')
   async update(@Param('id') id: string, @Body() sentence: SentenceEntity) {
 
@@ -434,7 +506,7 @@ export class SentenceController {
 
   }
   // ==================================================================
-  //              CSV
+  //              delete requests
   // ==================================================================
 
   @Delete(':id')
@@ -442,8 +514,9 @@ export class SentenceController {
     return this.sentenceService.remove(+id);
   }
 
-  @Delete()
-  async removeaLL() {
-    return await this.sentenceService.removeAll();
-  }
+  // @Delete()
+  // async removeaLL() {
+  //   return await this.sentenceService.removeAll();
+  // }
+
 }

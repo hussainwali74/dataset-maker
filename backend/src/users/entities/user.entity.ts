@@ -15,11 +15,11 @@ export class UserEntity extends SharedEntity {
     @Column('varchar')
     name: string;
 
-    @ApiProperty({ type: String, example: "khan@gmail.com" })
+    @ApiProperty({ type: String, example: "hussainadmin@dsmaker.com" })
     @Column('varchar')
     email: string;
 
-    @ApiProperty({ type: String, example: "12345" })
+    @ApiProperty({ type: String, example: "fsdasdf" })
     @Column('varchar')
     password: string;
 

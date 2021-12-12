@@ -1,6 +1,6 @@
 const axios = require('axios');
 (async () => {
-  const { data } = await axios.post('http://localhost:5000/auth/register', {
+  const { data } = await axios.post('http://localhost:3000/auth/register', {
     name: 'test',
     email: 'test@gmail.com',
     password: '12345',
@@ -8,7 +8,7 @@ const axios = require('axios');
 })();
 
 // (async () => {
-//   const { data } = await axios.post('http://localhost:5000/auth/login', {
+//   const { data } = await axios.post('http://localhost:3000/auth/login', {
 //     email: 'test@gmail.com',
 //     password: '12345',
 //   });

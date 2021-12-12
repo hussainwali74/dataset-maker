@@ -16,6 +16,12 @@ export class AuthController {
         private sharedService: SharedService
     ) { }
 
+    @Get('test')
+    test() {
+        console.log("newt")
+        return "it's working"
+    }
+
     @Get()
     @UseGuards(AuthGuard('jwt'))
     tempAuth() {

@@ -1,17 +1,19 @@
-import { Controller, Get, Body, Patch, Param, Delete, UseGuards, Post } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete, UseGuards, Post, Request } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { LanguageEntity } from './entities/language.entity';
 import { LanguageService } from './language.service';
 
 @ApiUnauthorizedResponse({ description: 'please provide a valid token' })
 @ApiBearerAuth('token')
 @ApiTags('Languages')
+@UseGuards(JwtGuard)
 @Controller('language')
 export class LanguageController {
   constructor(private readonly languageService: LanguageService) { }
 
   @Get()
-  findAll() {
+  findAll(@Request() req) {
     return this.languageService.findAll();
   }
 

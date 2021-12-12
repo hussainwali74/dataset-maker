@@ -1,8 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, IsNull, Repository, Connection } from 'typeorm';
 import { SentenceEntity } from './entities/sentence.entity';
 import { SentenceToSpeakerService } from './sentencetospeacker.service';
+import { parse } from 'json2csv'
+import { checkIfFileOrDirectoryExists, createDirAsync, createFile, getFile } from 'src/storage.helper';
 
 @Injectable()
 export class SentenceService {
@@ -23,11 +25,24 @@ export class SentenceService {
 
   }
 
+  async findAByConditionWithRelationsOfUserTest(condition, relations, speaker_id) {
+
+    console.log(`sdds=========================`);
+
+
+  }
   async findAByConditionWithRelationsOfUser(condition, relations, speaker_id) {
 
+    console.log(`sdds=========================`);
     try {
+      console.log(`sdds`);
 
       let data: SentenceEntity[] = await this.sentenceRespository.find({ where: condition, relations: relations });
+
+      console.log('-----------------------------------------------------')
+      console.log("data :>>", data)
+      console.log('-----------------------------------------------------')
+
       data = data.map(sentence => {
         for (let i = 0; i < sentence.sentenceToSpeaker?.length; i++) {
           let element = sentence.sentenceToSpeaker[i];
@@ -52,10 +67,17 @@ export class SentenceService {
 
   }
 
-  async findAByConditionWithRelations(condition, relations) {
+  /**
+   * 
+   * @param condition is object
+   * @param relations string array 
+   * @param select string array of columns to select
+   * @returns list of sentences
+   */
+  async findAByConditionWithRelations(condition, relations?: string[], select?: any[]) {
 
     try {
-      return await this.sentenceRespository.find({ where: condition, relations: relations });
+      return await this.sentenceRespository.find({ where: condition, relations, select });
     } catch (error) {
       throw new HttpException(error, error.status)
     }
@@ -190,5 +212,53 @@ export class SentenceService {
       throw new HttpException(error, error.status)
     }
   }
+
+  // ----------------------------------------------------------------- EXPORT CSV ext 
+  /**
+  * Creates a CSV file with users data and saves csv at filepath
+  *
+  * @returns {Promise<string>}
+  */
+  async exportDataToCSV(data: any[]): Promise<string> {
+
+    const csvFields = Object.keys(data[0])
+
+    if (!data || !csvFields) {
+      return Promise.reject("Unable to transform users data for CSV.");
+    }
+
+    const csv = parse(data, { fields: csvFields });
+
+    const filePath = `storage/app/exports/users`;
+    const dircreated = await createDirAsync(filePath)
+    const fileName = `users.csv`;
+    try {
+      await createFile(filePath, fileName, csv);
+    } catch (error) {
+      console.log(`error in  createFile`, error)
+    }
+
+    return Promise.resolve(fileName);
+
+  }
+
+  /**
+   * Gets an exported CSV file
+   *
+   * @param {string} filename
+   *
+   * @returns {Promise<string>}
+   */
+  async getExportedCSV(filename: string): Promise<string> {
+    const filePath = `storage/app/exports/users/${filename}`;
+
+    if (!await checkIfFileOrDirectoryExists(filePath)) {
+      throw new NotFoundException('Users export not found.');
+    }
+
+    return (await getFile(filePath, 'utf8')).toString();
+  }
+  // ----------------------------------------------------------------- END EXPORT CSV ext 
+
 
 }
