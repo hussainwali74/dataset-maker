@@ -9,7 +9,7 @@ const Navbar = () => {
 	}
 	const showOnAdmin = () => {
 		const user = JSON.parse(localStorage.getItem("user"))
-		if (user.email == "admin@hussain.com") {
+		if (user.email === "admin@hussain.com") {
 			return true
 		} else {
 			return false

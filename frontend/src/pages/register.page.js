@@ -9,7 +9,7 @@ const RegisterPage = () => {
 		{ id: "language_expert", name: "Lanugage Expert" },
 	])
 	return (
-		<div>
+		<div className="p-8">
 			<h1>Register!</h1>
 			<Formik
 				initialValues={{ name: "", email: "", password: "", role: "" }}

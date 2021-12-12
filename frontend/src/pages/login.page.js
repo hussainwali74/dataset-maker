@@ -1,5 +1,5 @@
 import axios from "axios"
-import { Link, useHistory } from "react-router-dom"
+import { useHistory } from "react-router-dom"
 import { useState } from "react"
 
 const LoginPage = () => {
@@ -11,10 +11,10 @@ const LoginPage = () => {
 		e.preventDefault()
 		try {
 			const { data } = await axios.post("auth/login", form)
- 
+
 			if (data.status) {
 				const { token } = data.data
-				const { userfinal } = data.data 
+				const { userfinal } = data.data
 				localStorage.setItem("token", token)
 				localStorage.setItem("user", JSON.stringify(userfinal))
 				history.push("/")
@@ -38,7 +38,7 @@ const LoginPage = () => {
 	}
 
 	return (
-		<div>
+		<div className="p-8">
 			<h1>Login!</h1>
 
 			<form

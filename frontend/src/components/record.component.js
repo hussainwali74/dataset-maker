@@ -19,7 +19,6 @@ const Record = ({ sample, sentence, getSentences, language_id, language_name }) 
 			onStop: (blobUrl, blob) => {
 				setLoading(true)
 				console.log("onStop recording")
-				const url = URL.createObjectURL(blob)
 				let formData = new FormData()
 
 				//person_name-person_id-language_id-sentence.id-date

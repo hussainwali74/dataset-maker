@@ -24,7 +24,7 @@ const Sentence = () => {
 
 	const handleSelectLanguage = (e) => {
 		setSelectedLanguageId(e.target.value)
-		const languagename = languages.find((x) => x.id == e.target.value)
+		const languagename = languages.find((x) => x.id === e.target.value)
 
 		setSelectedLanguageName(languagename.name)
 		getSentences(e.target.value)
@@ -45,24 +45,6 @@ const Sentence = () => {
 			return { ...sentence, editing: false }
 		})
 		setSentences(data.data)
-	}
-
-	const handleDeleteSample = async (sentence) => {
-		let data
-		try {
-			data = await axios.patch(
-				"sentence/delete_recording/" + selectedLanguageName + "/" + true,
-				sentence
-			)
-			if (data.status) {
-				getSentences()
-			}
-		} catch (error) {
-			alert("error deleting recording")
-
-			console.log("error deleting recording :>>", error)
-			console.log("-------------------------------------------------------")
-		}
 	}
 
 	const handleDeleteSample = async (sentence) => {
