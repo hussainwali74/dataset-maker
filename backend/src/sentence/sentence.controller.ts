@@ -25,8 +25,6 @@ const mv = require('mv');
 const fs = require('fs');
 import { join } from 'path';
 
-
-
 @UseGuards(JwtGuard)
 @ApiUnauthorizedResponse({ description: 'please provide a valid token' })
 @ApiBearerAuth('token')
@@ -76,7 +74,6 @@ export class SentenceController {
     )
 
   }
-
 
   @ApiTags('ds_maker')
   @Get('/exportaudio')
@@ -132,7 +129,6 @@ export class SentenceController {
     res.sendFile(stream)
 
   }
-
 
   // end export csv and audio ----------------------------------------------------------------------
 
@@ -198,6 +194,22 @@ export class SentenceController {
     }
     return this.sharedService.handleSuccess(data)
   }
+  /**
+   * 
+   * @param id 
+   * @param user user.id => speaker_id: from jwt 
+   * @returns sample sentences of language by language id 
+   */
+  @Get('allsample/language/:id')
+  async getAllSampleSentencesByLanguageId(@Param('id') id: number) {
+    let data;
+    try {
+      data = await this.sentenceService.findAByConditionWithRelationsOfUser({ language: +id, sample: true }, ['sentenceToSpeaker']);
+    } catch (error) {
+      return this.sharedService.handleError(error)
+    }
+    return this.sharedService.handleSuccess(data)
+  }
 
   /**
    * 
@@ -238,11 +250,6 @@ export class SentenceController {
   )
   async uploadSampleFiles(@UploadedFile() file) {
     try {
-
-      console.log('================================================')
-      console.log("file audio :>>", file)
-      console.log('================================================')
-
       const result = await this.handFileUploadAndDb(file, true)
       return this.sharedService.handleSuccess(result)
     } catch (error) {
@@ -286,17 +293,17 @@ export class SentenceController {
     const username = filename_split[0]
     const sentence_id = filename_split[3]
     const languagename = filename_split[5].split('.')[0]
-    console.log(`languagename in handleFileUploadAndDb`, languagename)
-    //check if folder for the speaker exists, if not create and move file to that folder
+
+     //check if folder for the speaker exists, if not create and move file to that folder
     try {
       const ddd = await this.createNewFolder(languagename, username, sample)
     } catch (error) { console.log("error in creating folder :>>", error); return this.sharedService.handleError(error) }
     //upload file and move to speaker's folder
 
     try {
-      const currentPath = path.join("uploads", file.originalname);
+      const currentPath = join("uploads", file.originalname);
       const destPath = sample ? "uploads/" + languagename + "/sample" : "uploads/" + languagename + "/" + username;
-      const destinationPath = path.join(destPath, file.originalname);
+      const destinationPath = join(destPath, file.originalname);
 
       mv(currentPath, destinationPath, function (err) {
         if (err) {
@@ -361,6 +368,11 @@ export class SentenceController {
     let dir;
     if (!sample) {
       dir = 'uploads/' + language + '/' + username;
+
+      console.log('-----------------------------------------------------')
+      console.log("dir in createNewFolder :>>", dir)
+      console.log('-----------------------------------------------------')
+
     } else {
       dir = 'uploads/' + language + '/sample'
     }
@@ -480,7 +492,7 @@ export class SentenceController {
     //delete file and delete entry from intermediate table
 
     if (sample === 'true' && sentence.audio) {
-      const filepath = path.join(__dirname, '../../', '/uploads/' + sentence.audio);
+      const filepath = join(__dirname, '../../', '/uploads/' + sentence.audio);
       try {
         const result = await this.handleDeleteRecording(filepath, sentence, true)
         return this.sharedService.handleSuccess(result)
@@ -489,7 +501,7 @@ export class SentenceController {
       }
 
     } else {
-      const filepath = path.join(__dirname, '../../', '/uploads/' + language_name + '/' + user.name + '/' + sentence['recordedAudio'].audio_url);
+      const filepath = join(__dirname, '../../', '/uploads/' + language_name + '/' + user.name + '/' + sentence['recordedAudio'].audio_url);
       try {
         const result = await this.handleDeleteRecording(filepath, sentence, false)
         return this.sharedService.handleSuccess(result)
@@ -500,9 +512,8 @@ export class SentenceController {
   }
 
   async handleDeleteRecording(filepath, sentence: SentenceEntity, sample) {
-    let resultOfDeleteFile;
     try {
-      resultOfDeleteFile = await this.deleteFile(filepath)
+      const resultOfDeleteFile = await this.deleteFile(filepath)
       // return this.sharedService.handleSuccess(result)
     } catch (error) {
       console.log(`error in deletefile 387`, error)

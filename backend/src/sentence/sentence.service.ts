@@ -25,28 +25,27 @@ export class SentenceService {
 
   }
 
-  async findAByConditionWithRelationsOfUser(condition, relations, speaker_id) {
+  async findAByConditionWithRelationsOfUser(condition, relations, speaker_id?: number) {
 
     try {
-      console.log(`sdds`);
-
       let data: SentenceEntity[] = await this.sentenceRespository.find({ where: condition, relations: relations });
-
-      console.log('-----------------------------------------------------')
-      console.log("data :>>", data)
-      console.log('-----------------------------------------------------')
-
       data = data.map(sentence => {
+        if (!speaker_id) sentence['recordedAudio'] = [];
         for (let i = 0; i < sentence.sentenceToSpeaker?.length; i++) {
           let element = sentence.sentenceToSpeaker[i];
           const splitelement = element.audio_url.split('-');
           //person_name-person_id-language_id-sentence_id-date-language_name
           element['sentence'] = +splitelement[3];
           element['speaker'] = +splitelement[1];
-
-          if (element.speaker == speaker_id) {
-            sentence['recordedAudio'] = element
-          };
+          if (speaker_id) {
+            if (element.speaker == speaker_id) {
+              sentence['recordedAudio'] = element
+            };
+          } else {
+            const speaker_name = splitelement[0];
+            element.audio_url = "https://roomie.pk:5000/Burushaski/" + speaker_name + "/" + element.audio_url;
+            sentence['recordedAudio'].push(element.audio_url)
+          }
         }
         delete sentence.sentenceToSpeaker;
         return sentence;
@@ -120,7 +119,6 @@ export class SentenceService {
 
   async createMany(sentences: SentenceEntity[]) {
 
-    console.log(`sentences.length`, sentences.length)
     let finalSentences = [];
     for (let i = 0; i < sentences.length; i++) {
       const element = sentences[i].sentence;
@@ -128,7 +126,6 @@ export class SentenceService {
       const data = await this.findOneByCondition({ sentence: element })
       if (data) {
         if (sentences[i]['sample'] && !data.sample) {
-          console.log(`updating `, i)
           try {
             await this.update(data.id, { sample: true })
           } catch (error) {
@@ -140,8 +137,6 @@ export class SentenceService {
         finalSentences.push(sentences[i])
       }
     }
-
-    console.log(`final Sentences.length`, finalSentences.length)
 
     try {
       if (finalSentences.length) {
@@ -166,17 +161,8 @@ export class SentenceService {
 
   async deleteRecordedFileFromMidTable(sentenceToSpeaker_id: number) {
 
-    console.log('================================================')
-    console.log("sentenceToSpeaker_id :>>", sentenceToSpeaker_id)
-    console.log('================================================')
-
     try {
       const result = await this.sentenceToSpeakerService.remove(sentenceToSpeaker_id);
-
-      console.log('================================================')
-      console.log("result of removing sentencetospeacker :>>", result)
-      console.log('================================================')
-
       return result
     } catch (error) {
       console.log(`error in deleteRecordedFileFromMidTable 161`, error)

@@ -30,20 +30,9 @@ export const checkIfFileOrDirectoryExists = async (path: string): Promise<boolea
  */
 export const createDirAsync = async (dir_name: string) => {
     const direxists = await fs.existsSync(dir_name)
-
-    console.log('-----------------------------------------------------p')
-    console.log("direxists :>>", direxists)
-    console.log('-----------------------------------------------------p')
-
     if (!direxists) {
         const dir_created = fs.mkdirSync(dir_name, { recursive: true });
-
-        console.log('-----------------------------------------------------p')
-        console.log("dir_created :>>", dir_created)
-        console.log('-----------------------------------------------------p')
-
     }
-    console.log("dir created");
 
 }
 /**
