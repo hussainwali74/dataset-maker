@@ -6,16 +6,14 @@ import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectRepository(UserEntity)
-  private userRepository: Repository<UserEntity>
-  ) { }
+
+  constructor(@InjectRepository(UserEntity) private userRepository: Repository<UserEntity>) { }
+
   async create(user: UserEntity) {
     try {
       const data = await this.userRepository.create(user)
-
       return await this.userRepository.save(data);
     } catch (error) {
-
       throw new HttpException(error, HttpStatus.NOT_IMPLEMENTED)
     }
   }

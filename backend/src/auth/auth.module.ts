@@ -11,7 +11,6 @@ import { JwtGuard } from './guards/jwt.guard';
 @Module({
   imports: [
     JwtModule.register({
-
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '60000d' }
 
@@ -23,6 +22,7 @@ import { JwtGuard } from './guards/jwt.guard';
     JwtStrategy,
     RolesGuard
   ],
+  exports: [AuthService],
   controllers: [AuthController]
 })
 export class AuthModule { }

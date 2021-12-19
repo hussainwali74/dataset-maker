@@ -1,19 +1,19 @@
 import { HttpException, Injectable } from '@nestjs/common';
 
-import { sign } from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
 
 import { UserService } from 'src/users/users.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
 
-    constructor(private userService: UserService) {
+    constructor(private userService: UserService, private jwtService: JwtService) {
 
     }
 
     async signPayload(payload: any) {
-        return sign(payload, 'secretKey', { expiresIn: '12h' })
+        return this.jwtService.sign(payload, { secret: process.env.JWT_SECRET, expiresIn: '10D' })
     }
 
     async validateUser(payload: any) {

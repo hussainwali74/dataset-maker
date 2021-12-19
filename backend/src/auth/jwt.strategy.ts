@@ -6,17 +6,18 @@ import { AuthService } from "./auth.service";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
+
     constructor(private authService: AuthService) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            ignoreExpiration: true,
+            ignoreExpiration: false,
             secretOrKey: process.env.JWT_SECRET
         })
     }
 
     async validate(payload: any, done: VerifiedCallback) {
 
-        console.log("payload :>>", payload)
+        console.log("payload in validate jwtstrategy 20:  :>>", payload)
         console.log('================================================')
 
         const user = await this.authService.validateUser(payload)

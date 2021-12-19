@@ -65,7 +65,7 @@ export class SentenceController {
   @ApiTags('ds_maker')
   @Get('/exportcsv')
   async exportSampleSentencesCSV(@Response() res: ExpressResponse) {
-    const data = await this.sentenceService.findAByConditionWithRelations({ language: 1, sample: true }, [], ['id', 'sentence'])
+    const data = await this.sentenceService.selectivefindByConditionWithRelations({ language: 1, sample: true }, [], ['id', 'sentence'])
     return await this.sentenceService.exportDataToCSV(data).then(
       async (filename) => {
         await this.sentenceService.getExportedCSV(filename).then((csvData) => {
@@ -86,17 +86,50 @@ export class SentenceController {
 
     // http://localhost:5000/Burushaski/hussain/aa.wav
 
-    const url = "http://localhost:5000/Burushaski/hussain/aa.wav";
-    const fileExistsCheck = checkIfFileOrDirectoryExists(url)
+    /**
+     * get list of Files in a directory:
+     */
+    const folederPath = join(process.cwd(), 'uploads', 'Burushaski', 'hussain\\')
+    const filesArray = fs.readdirSync(folederPath).filter(file => fs.lstatSync(folederPath + file).isFile())
+
+
+
+    const filePath = join(folederPath, 'a.wav');
+    const stat = fs.statSync(filePath);
+    // const fileExistsCheck = await checkIfFileOrDirectoryExists(filepath)
+
+    // console.log('-----------------------------------------------------')
+    // console.log("join(procces.cwd()) :>>", join(process.cwd(), 'uploads', 'Burushaski', 'hussain'))
+    // console.log('-----------------------------------------------------')
 
 
     console.log('-----------------------------------------------------')
-    console.log("fileExistsCheck :>>", fileExistsCheck)
+    console.log(`filePath`, filePath)
     console.log('-----------------------------------------------------')
 
-    // res.set('Content-Type', 'audio/wav')
-    // const stream = fs.createReadStream(url).pipe(res)
-    // res.send(stream)
+
+
+    // console.log('-----------------------------------------------------')
+    // console.log("fileExistsCheck :>>", fileExistsCheck)
+    // console.log('-----------------------------------------------------')
+
+    res.set('Content-Type', 'audio/wav')
+    res.set('Content-Length', stat.size)
+    // res.sendFile(filePath)
+    // stream.on('end', function () {
+    //   stream.close()
+    //   console.log(`done sending file`);
+
+    // })
+
+
+    // console.log('-----------------------------------------------------')
+    // console.log("res :>>", res)
+    // console.log('-----------------------------------------------------')
+    // res.send(file);
+
+    const stream = fs.createReadStream(filePath)
+    res.sendFile(stream)
 
   }
 
@@ -109,8 +142,12 @@ export class SentenceController {
    * @returns one sentence find by id
    */
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    console.log(`id`);
+  async findOne(@Param('id') id: string, @GetUser() user) {
+
+    console.log('-----------------------------------------------------')
+    console.log("user :>>", user)
+    console.log('-----------------------------------------------------')
+
 
     let data;
     try {
@@ -128,6 +165,7 @@ export class SentenceController {
    * @param id 
    * @returns list of all sentences by language id, with relation sentenceToSpeaker
    */
+  @UseGuards(JwtGuard)
   @Get('language/:id')
   async getSentenceByLanguageId(@Param('id') id: number) {
     console.log(`langugage/id`);
@@ -135,7 +173,7 @@ export class SentenceController {
     let data;
 
     try {
-      data = await this.sentenceService.findAByConditionWithRelations({ language: +id }, ['sentenceToSpeaker']);
+      data = await this.sentenceService.selectivefindByConditionWithRelations({ language: +id }, ['sentenceToSpeaker']);
 
     } catch (error) {
       return this.sharedService.handleError(error)
@@ -152,17 +190,9 @@ export class SentenceController {
    */
   @Get('sample/language/:id')
   async getSampleSentencesByLanguageId(@Param('id') id: number, @GetUser() user) {
-    console.log(`sample/langugage/id`);
     let data;
     try {
-
-      console.log('-----------------------------------------------------')
-      console.log("user :>>", user)
-      console.log('-----------------------------------------------------')
-
-      data = await this.sentenceService.findAByConditionWithRelationsOfUserTest({ language: +id, sample: true }, ['sentenceToSpeaker'], user.id);
-
-
+      data = await this.sentenceService.findAByConditionWithRelationsOfUser({ language: +id, sample: true }, ['sentenceToSpeaker'], user.id);
     } catch (error) {
       return this.sharedService.handleError(error)
     }
@@ -367,7 +397,6 @@ export class SentenceController {
     }
     return this.sharedService.handleSuccess("Upload complete")
   }
-
 
   @Post('/upload_csv_sample/:language_id')
   @UseInterceptors(

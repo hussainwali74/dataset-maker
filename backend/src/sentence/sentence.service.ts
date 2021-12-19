@@ -25,15 +25,8 @@ export class SentenceService {
 
   }
 
-  async findAByConditionWithRelationsOfUserTest(condition, relations, speaker_id) {
-
-    console.log(`sdds=========================`);
-
-
-  }
   async findAByConditionWithRelationsOfUser(condition, relations, speaker_id) {
 
-    console.log(`sdds=========================`);
     try {
       console.log(`sdds`);
 
@@ -74,7 +67,7 @@ export class SentenceService {
    * @param select string array of columns to select
    * @returns list of sentences
    */
-  async findAByConditionWithRelations(condition, relations?: string[], select?: any[]) {
+  async selectivefindByConditionWithRelations(condition, relations?: string[], select?: any[]) {
 
     try {
       return await this.sentenceRespository.find({ where: condition, relations, select });
