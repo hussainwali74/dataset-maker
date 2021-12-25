@@ -24,9 +24,7 @@ const Record = ({ sample, sentence, getSentences, language_id, language_name }) 
 				//person_name-person_id-language_id-sentence.id-date
 				const today = new Date()
 				// const file_name = `${id}-${language_id}-${sentence.id}-${today.toISOString()}.wav`
-				const file_name = `${name}-${id}-${language_id}-${
-					sentence.id
-				}-${today.toDateString()}-${language_name}.wav`
+				const file_name = `${name}-${id}-${language_id}-${sentence.id}-${today.toDateString()}-${language_name}.wav`
 				setLoading(true)
 				formData.append("file", blob, file_name)
 

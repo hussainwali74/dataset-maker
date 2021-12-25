@@ -48,6 +48,11 @@ const Sentence = () => {
 	}
 
 	const handleDeleteSample = async (sentence) => {
+		 
+		console.log("-------------------------------------------------------")
+		console.log("sentence :>>", sentence)
+		console.log("-------------------------------------------------------")
+		 
 		let data
 		try {
 			data = await axios.patch(

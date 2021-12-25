@@ -273,6 +273,7 @@ export class SentenceController {
     }
 
   }
+  //const file_name = `${speakername}-${speakerid}-${language_id}-${sentence.id}-${today.toDateString()}-${language_name}.wav`
 
   async handFileUploadAndDb(file, sample: boolean = false) {
     // 1. upload file, get filepath
