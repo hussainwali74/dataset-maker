@@ -44,17 +44,26 @@ for j in data['data']:
     recordAudioArray = j['recordedAudio']
 
     for i in recordAudioArray:
+        #print(i)
         if(i):
             audio_split = i.split("https://roomie.pk:5000/Burushaski/")
             print('downloading: ', i)
             print('into')
-            print(audio_split[1].split('/')[0])
+            speaker_name = audio_split[1].split('/')[0]
+            sentence_id = audio_split[1].split('/')[1].split('-')[3]
+
             print('-----------------------------------------------')
-            if(audio_split[1].split('/')[0] != ''):
-                download(i, dest_folder=audio_split[1].split('/')[0])
+            if(sentence_id):
+                text_file_name = sentence_id+".txt"
+                text_file_path = os.path.join(speaker_name, text_file_name)
+                text_file = open(text_file_path, 'w+')
+                text_file.write(j['sentence'])
+                text_file.close()
+            if(speaker_name != ''):
+                download(i, dest_folder=speaker_name)
             else:
                 print('folder name not valid')
                 print(i)
                 print('----------------------------------------------')
             time.sleep(1)
-print("done master Hussain ")
+print("downloading done ")
