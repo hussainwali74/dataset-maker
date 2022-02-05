@@ -1,0 +1,72 @@
+7 data/local/tmp/speakers_all.txt
+ 13 data/local/tmp/speakers_train.txt
+  4 data/local/tmp/speakers_test.txt
+ 17 total
+--- Preparing test_wav.scp, test_trans.txt and test.utt2spk ...
+--- Preparing test.spk2utt ...
+--- Preparing train_wav.scp, train_trans.txt and train.utt2spk ...
+--- Preparing train.spk2utt ...
+6078 errors detected in the transcripts. Check exp/data_prep/make_trans.log for details!
+*** Initial VoxForge data preparation finished!
+=== Building a language model ...
+--- Preparing a corpus from test and train transcripts ...
+*** Finished building the LM model!
+=== Preparing the dictionary ...
+--- Downloading CMU dictionary ...
+A    data/local/dict/cmudict/scripts
+A    data/local/dict/cmudict/sphinxdict
+A    data/local/dict/cmudict/00README_FIRST.txt
+A    data/local/dict/cmudict/cmudict-0.7b
+A    data/local/dict/cmudict/scripts/test_cmudict.pl
+A    data/local/dict/cmudict/scripts/README.txt
+A    data/local/dict/cmudict/scripts/make_baseform.pl
+A    data/local/dict/cmudict/scripts/CompileDictionary.sh
+A    data/local/dict/cmudict/scripts/sort_cmudict.pl
+A    data/local/dict/cmudict/scripts/test_dict.pl
+A    data/local/dict/cmudict/cmudict.0.6d
+A    data/local/dict/cmudict/cmudict.0.7a
+A    data/local/dict/cmudict/cmudict-0.7b.phones
+A    data/local/dict/cmudict/cmudict-0.7b.symbols
+A    data/local/dict/cmudict/sphinxdict/cmudict.0.7a_SPHINX_40
+A    data/local/dict/cmudict/sphinxdict/cmudict_SPHINX_40
+A    data/local/dict/cmudict/sphinxdict/README.txt
+A    data/local/dict/cmudict/sphinxdict/SphinxPhones_40
+A    data/local/dict/cmudict/README.developer
+A    data/local/dict/cmudict/cmudict.0.7a.symbols
+A    data/local/dict/cmudict/cmudict.0.7a.phones
+A    data/local/dict/cmudict/README.old
+A    data/local/dict/cmudict/README.weide
+Checked out revision 13291.
+--- Striping stress and pronunciation variant markers from cmudict ...
+133287 forms processed
+123699 baseforms, 9283 variants and 305 duplicates found.
+variant distribution:
+2	8591
+3	527
+4	165
+--- Searching for OOV words ...
+2 data/local/dict/vocab-oov.txt
+0 data/local/dict/lexicon-iv.txt
+--- Preparing pronunciations for OOV words ...
+failed to convert "-pau-": translation failed
+failed to convert "<unk>": translation failed
+stack usage:  0
+--- Prepare phone lists ...
+--- Adding SIL to the lexicon ...
+*** Dictionary preparation finished!
+utils/prepare_lang.sh --position-dependent-phones true data/local/dict !SIL data/local/lang data/lang
+Checking data/local/dict/silence_phones.txt ...
+--> reading data/local/dict/silence_phones.txt
+--> text seems to be UTF-8 or ASCII, checking whitespaces
+--> text contains only allowed whitespaces
+--> data/local/dict/silence_phones.txt is OK
+
+Checking data/local/dict/optional_silence.txt ...
+--> reading data/local/dict/optional_silence.txt
+--> text seems to be UTF-8 or ASCII, checking whitespaces
+--> text contains only allowed whitespaces
+--> data/local/dict/optional_silence.txt is OK
+
+Checking data/local/dict/nonsilence_phones.txt ...
+--> ERROR: data/local/dict/nonsilence_phones.txt is empty or not exists
+*Error validating directory data/local/dict*
